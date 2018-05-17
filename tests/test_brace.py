@@ -115,7 +115,7 @@ class TestBraces(unittest.TestCase):
 
         self.eval_brace_cases(pad)
 
-    def test_pad_expand(self):
+    def test_sequence_expand(self):
         """Test sequence expansion."""
 
         self.eval_brace_cases(sequence)
