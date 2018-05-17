@@ -42,7 +42,7 @@ deploy:
     user: facelessuser
     server: https://upload.pypi.org/legacy/
     password:
-      secure: ''
+      secure: fY4HB5HaaTptkIKcZAjaDEQCWUa8zkQz4fPWSt12QIIMPP9J9rLH3JntbNuGZ254F5W8YiYIOojQXi0g446STY7y+HAM72MWLY2tvfE0BykZJkf9AwbTrqy5mbTTpwGn0qZDjJq4pR4UcTYEAcT3M7SnOtZYDo0ieXff9Zi5YsXjurhAk4X0pe9/pn3rzzsGXz/4d4W5oxUaRUWdOUqnS32TzzcdqS5jpG6CfxC21mD2TDRBwdVLpA4Y9FUSYJys43kJKGKJmdgBxIBQFPKe4bRt3qAvGdd3Qb2W0ow2BUMYcy0oohgsMBB/4Kv/7o60L2jJjKqSuK0eIJEIkhWRHuooE6hjfXrbPv8oB9NoXxZRQuI/uNhh1h+Aa7xa2Z0VVMiYmSmSRv/M8KkrNiV2Y5FlGCfDB1QCGp/iGyEfa4/97MgSAinVgwUmhCauiY79+pu5T/DE+DI+GBsnLbAjyqX9RvGKygqRmX3sj1rBD5eTwAzw6PyRp4WE1GFO8trQvUgjalRHogogS+t9cO97mVC9oH0u/IgqCqwEkPyqy6VTZ8e/fryGOP4bswQ+WxJPRs83qvrO+GRnBLRx8VzBbJFmvo2OVMJFWFVdugSyXCG2ljMSSlQBvByLqk4o2w/gA852oN3sKN5m4Pyn/OJqK2xlEx7ljO9KEkC4mf301MY=
     distributions: "sdist bdist_wheel"
     skip_upload_docs: true
     on:
