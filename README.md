@@ -1,3 +1,7 @@
+[![Unix Build Status][travis-image]][travis-link]
+[![Coverage][codecov-image]][codecov-link]
+[![pypi-version][pypi-image]][pypi-link]
+![License][license-image-mit]
 # Bracex
 
 Bracex is a brace expanding library (à la Bash) for Python. Brace expanding is used to generate arbitrary strings.
@@ -128,3 +132,11 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+[codecov-image]: https://img.shields.io/codecov/c/github/facelessuser/bracex/master.svg
+[codecov-link]: https://codecov.io/github/facelessuser/bracex
+[travis-image]: https://img.shields.io/travis/facelessuser/bracex/master.svg?label=Unix%20Build
+[travis-link]: https://travis-ci.org/facelessuser/bracex
+[pypi-image]: https://img.shields.io/pypi/v/bracex.svg
+[pypi-link]: https://pypi.python.org/pypi/bracex
+[license-image-mit]: https://img.shields.io/badge/license-MIT-blue.svg
