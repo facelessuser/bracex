@@ -59,6 +59,11 @@ sequence = [
     ['{b..k..2}', ['b', 'd', 'f', 'h', 'j']]
 ]
 
+errors = [
+    # This would fail in bash, but we won't fail because we aren't Bash
+    ['{a,b,c}\\', ['a', 'b', 'c']]
+]
+
 
 class TestBraces(unittest.TestCase):
     """Test globbing."""
@@ -84,6 +89,11 @@ class TestBraces(unittest.TestCase):
             goal = p[1]
             print('TEST: ', result, '<==>', goal, '\n')
             self.assertEqual(result, goal)
+
+    def test_internal_errors(self):
+        """Test trailing escape."""
+
+        self.eval_brace_cases(errors)
 
     def test_dollar_expand(self):
         """Test that dollar expansions don't expand."""
