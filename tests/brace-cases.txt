@@ -186,3 +186,8 @@ y{},a}x
 {{},a}}b
 {}{{},a}}b
 {}a,b}c
+# Zero is an acceptable incrementer, just assume 1
+{1..10..0}
+{1..10..-0}
+{a..d..0}
+{a..d..-0}

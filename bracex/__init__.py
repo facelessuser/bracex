@@ -329,7 +329,11 @@ class ExpandBrace(object):
             m = i.match(RE_CHR_ITER)
             if m:
                 return self.get_char_range(*m.groups())
-        except ValueError:
+        except Exception:  # pragma: no cover
+            # TODO: We really should never fail here,
+            # but if we do, assume the sequence range
+            # was invalid. This catch can probably
+            # be removed in the future with more testing.
             pass
 
         return None
@@ -353,8 +357,10 @@ class ExpandBrace(object):
         increment = int(increment) if increment is not None else 1
         max_length = max(len(start), len(end))
 
+        # Zero doesn't make sense as an incrementer
+        # but like bash, just assume one
         if increment == 0:
-            raise ValueError
+            increment = 1
 
         if start[0] == '-':
             start = start[1:]
@@ -383,8 +389,10 @@ class ExpandBrace(object):
         if increment < 0:
             increment = -increment
 
+        # Zero doesn't make sense as an incrementer
+        # but like bash, just assume one
         if increment == 0:
-            raise ValueError
+            increment = 1
 
         inverse = start > end
         alpha = _nalpha if inverse else _alpha
