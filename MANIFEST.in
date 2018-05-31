@@ -4,7 +4,7 @@ recursive-include requirements *.txt
 recursive-exclude site *
 include setup.py
 include setup.cfg
-include tox.inic
+include tox.ini
 include LICENSE.md
 include README.md
 include MANIFEST.in
