@@ -18,8 +18,6 @@ matrix:
       env: TOXENV=py37
     - python: 3.6
       env: TOXENV=lint
-  allow_failures:
-    - python: 3.7-dev
 
 # addons:
 #   apt:
