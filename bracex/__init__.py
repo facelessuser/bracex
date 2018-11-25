@@ -20,15 +20,25 @@ IN THE SOFTWARE.
 """
 import itertools
 import re
-from .__version__ import version_info, version
+from pep562 import Pep562
+import sys
+import warnings
+from .__meta__ import __version_info__, __version__
 
-__all__ = ('expand', 'iexpand', 'version', 'version_info')
+__all__ = ('expand', 'iexpand')
 
 _alpha = [chr(x) if x != 0x5c else '' for x in range(ord('A'), ord('z') + 1)]
 _nalpha = list(reversed(_alpha))
 
 RE_INT_ITER = re.compile(r'(-?\d+)\.{2}(-?\d+)(?:\.{2}(-?\d+))?(?=\})')
 RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}(-?\d+))?(?=\})')
+
+PY37 = (3, 7) <= sys.version_info
+
+__deprecated__ = {
+    "version": ("__version__", __version__),
+    "version_info": ("__version_info__", __version_info__)
+}
 
 
 def expand(string, keep_escapes=False):
@@ -421,3 +431,21 @@ class ExpandBrace(object):
                 yield x
         else:
             yield ""
+
+
+def __getattr__(name):  # noqa: N807
+    """Get attribute."""
+
+    deprecated = __deprecated__.get(name)
+    if deprecated:
+        warnings.warn(
+            "'{}' is deprecated. Use '{}' instead.".format(name, deprecated[0]),
+            category=DeprecationWarning,
+            stacklevel=(3 if PY37 else 4)
+        )
+        return deprecated[1]
+    raise AttributeError("module '{}' has no attribute '{}'".format(__name__, name))
+
+
+if not PY37:
+    Pep562(__name__)

@@ -118,7 +118,7 @@ class TestBraces:
             expanded_pattern.extend(
                 list(bracex.iexpand(case[0]))
             )
-        except Exception as e:
+        except Exception:
             expanded_pattern.append(case[0])
         result = expanded_pattern
         goal = case[1]
