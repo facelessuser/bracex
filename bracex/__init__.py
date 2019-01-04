@@ -136,8 +136,6 @@ class ExpandBrace(object):
         self.detph = 0
         self.expanding = False
         self.keep_escapes = keep_escapes
-        self.empties = 0
-        self.total = 0
 
     def set_expanding(self):
         """Set that we are expanding a sequence, and return whether a release is required by the caller."""
@@ -167,37 +165,18 @@ class ExpandBrace(object):
             escaped = ''
         return c + escaped if self.keep_escapes else escaped
 
-    def account(self, value):
-        """Count trailing empty slots so we can exclude them at the end."""
-
-        if self.depth == 0:
-            self.total += 1
-            if not value:
-                self.empties += 1
-            else:
-                self.empties = 0
-        return value
-
-    def finalize(self):
-        """Finalize accounting."""
-
-        if self.depth == 0:
-            self.total -= self.empties
-            if self.total == 0:
-                self.total = 1
-
     def squash(self, a, b):
         """
-        Squash the two arrays as one flat array.
+        Returns a generator that squashes two iterables into one.
 
-        ~~~
+        ```
         ['this', 'that'], [[' and', ' or']] => ['this and', 'this or', 'that and', 'that or']
-        ~~~
+        ```
         """
 
-        return [self.account(''.join(x) if isinstance(x, tuple) else x) for x in itertools.product(a, b)]
+        return ((''.join(x) if isinstance(x, tuple) else x) for x in itertools.product(a, b))
 
-    def get_literals(self, c, i):
+    def get_literals(self, c, i, depth):
         """
         Get a string literal.
 
@@ -223,7 +202,7 @@ class ExpandBrace(object):
                     # Try and get the group
                     index = i.index
                     try:
-                        seq = self.get_sequence(next(i), i)
+                        seq = self.get_sequence(next(i), i, depth + 1)
                         if seq:
                             c = seq
                     except StopIteration:
@@ -235,7 +214,7 @@ class ExpandBrace(object):
                     # We are Expanding within a group and found a group delimiter
                     # Retrun what we gathered before the group delimiters.
                     i.rewind(1)
-                    return result
+                    return (x for x in result)
 
                 # Squash the current set of literals.
                 result = self.squash(result, [c] if isinstance(c, str) else c)
@@ -245,10 +224,16 @@ class ExpandBrace(object):
             if self.is_expanding():
                 return None
 
-        self.finalize()
-        return result
+        return (x for x in result)
 
-    def get_sequence(self, c, i):
+    def combine(self, a, b):
+        """A generator that combines two iterables."""
+
+        for l in (a, b):
+            for x in l:
+                yield x
+
+    def get_sequence(self, c, i, depth):
         """
         Get the sequence.
 
@@ -256,7 +241,6 @@ class ExpandBrace(object):
         It will basically crawl to the end or find a valid series.
         """
 
-        self.depth += 1
         result = []
         release = self.set_expanding()
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
@@ -268,30 +252,28 @@ class ExpandBrace(object):
         i.advance(1)
         if item is not None:
             self.release_expanding(release)
-            self.depth -= 1
-            return item
+            return (x for x in item)
 
         try:
             while c:
                 # Bash has some special top level logic. if `}` follows `{` but hasn't matched
                 # a group yet, keep going except when the first 2 bytes are `{}` which gets
                 # completely ignored.
-                keep_looking = self.depth == 1 and not has_comma  # and i.index not in self.skip_index
+                keep_looking = depth == 1 and not has_comma  # and i.index not in self.skip_index
                 if (c == '}' and (not keep_looking or i.index == 2)):
                     # If there is no comma, we know the sequence is bogus.
                     if is_empty:
-                        result.append('')
+                        result = (x for x in self.combine(result, ['']))
                     if not has_comma:
-                        result = ['{' + literal + '}' for literal in result]
+                        result = ('{' + literal + '}' for literal in result)
                     self.release_expanding(release)
-                    self.depth -= 1
-                    return result
+                    return (x for x in result)
 
                 elif c == ',':
                     # Must be the first element in the list.
                     has_comma = True
                     if is_empty:
-                        result.append('')
+                        result = (x for x in self.combine(result, ['']))
                     else:
                         is_empty = True
 
@@ -301,26 +283,23 @@ class ExpandBrace(object):
                         # completed the top level group. Request more and
                         # append to what we already have for the first slot.
                         if not result:
-                            result.append(c)
+                            result = (x for x in self.combine(result, [c]))
                         else:
-                            result = list(self.squash(result, [c]))
-                        value = self.get_literals(next(i), i)
+                            result = self.squash(result, [c])
+                        value = self.get_literals(next(i), i, depth)
                         if value is not None:
-                            result = list(self.squash(result, value))
+                            result = self.squash(result, value)
                             is_empty = False
                     else:
                         # Lower level: Try to find group, but give up if cannot acquire.
-                        value = self.get_literals(c, i)
+                        value = self.get_literals(c, i, depth)
                         if value is not None:
-                            value = list(value)
-                        if value is not None:
-                            result.extend(value)
+                            result = (x for x in self.combine(result, value))
                             is_empty = False
 
                 c = next(i)
         except StopIteration:
             self.release_expanding(release)
-            self.depth -= 1
             raise
 
     def get_range(self, i):
@@ -390,7 +369,7 @@ class ExpandBrace(object):
         else:
             r = range(first, last - 1, increment if increment < 0 else -increment)
 
-        return [self.format_value(value, padding) for value in r]
+        return (self.format_value(value, padding) for value in r)
 
     def get_char_range(self, start, end, increment=None):
         """Get a range of alphabetic characters."""
@@ -411,25 +390,33 @@ class ExpandBrace(object):
         end = alpha.index(end)
 
         if start < end:
-            return alpha[start:end + 1:increment]
+            return (c for c in alpha[start:end + 1:increment])
 
         else:
-            return alpha[end:start + 1:increment]
+            return (c for c in alpha[end:start + 1:increment])
 
     def expand(self, string):
         """Expand."""
 
-        self.depth = 0
         self.expanding = False
-        self.total = 0
+        empties = []
+        found_literal = False
         if string:
             i = iter(StringIter(string))
-            for x in self.get_literals(next(i), i):
-                if not self.total:
-                    break
-                self.total -= 1
+            for x in self.get_literals(next(i), i, 0):
+                # We don't want to return trailing empty strings.
+                # Store empty strings and output only when followed by a literal.
+                if not x:
+                    empties.append(x)
+                    continue
+                found_literal = True
+                while empties:
+                    yield empties.pop(0)
                 yield x
-        else:
+        empties = []
+
+        # We found no literals so return an empty string
+        if not found_literal:
             yield ""
 
 
