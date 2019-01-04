@@ -1,7 +1,12 @@
 recursive-include bracex *.py
 recursive-include tests *.txt *.py
+recursive-include docs/src/markdown *.md *.png *.gif *.html
+recursive-include docs/src/dictionary *.txt
+recursive-include docs/theme *.js *.css *.html
 recursive-include requirements *.txt
 recursive-exclude site *
+include .pyspelling.yml
+include mkdocs.yml
 include setup.py
 include setup.cfg
 include tox.ini
