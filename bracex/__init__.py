@@ -212,7 +212,7 @@ class ExpandBrace(object):
 
                 elif self.is_expanding() and c in (',', '}'):
                     # We are Expanding within a group and found a group delimiter
-                    # Retrun what we gathered before the group delimiters.
+                    # Return what we gathered before the group delimiters.
                     i.rewind(1)
                     return (x for x in result)
 
@@ -246,7 +246,7 @@ class ExpandBrace(object):
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
         is_empty = True  # Tracks whether the current slot is empty `{slot,slot,slot}`.
 
-        # Detect numberical and alphabetic series: `{1..2}` etc.
+        # Detect numerical and alphabetic series: `{1..2}` etc.
         i.rewind(1)
         item = self.get_range(i)
         i.advance(1)
