@@ -20,7 +20,7 @@ IN THE SOFTWARE.
 """
 import itertools
 import re
-from pep562 import Pep562
+from .pep562 import Pep562
 import sys
 import warnings
 from .__meta__ import __version_info__, __version__
