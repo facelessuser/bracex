@@ -1,5 +1,9 @@
 # Changes
 
+## 1.1.1
+
+- **FIX**: Vendor `pep562` in order to reduce dependencies.
+
 ## 1.1.0
 
 - **NEW**: Deprecate `version` and `version_info` in favor of the more standard `__version__` and `__version_info__`.
