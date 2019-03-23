@@ -1,5 +1,9 @@
 # Changes
 
+## 1.2.0
+
+- **NEW**: Officially support Python 3.8.
+
 ## 1.1.1
 
 - **FIX**: Vendor `pep562` in order to reduce dependencies.
