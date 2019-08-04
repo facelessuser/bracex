@@ -1,5 +1,9 @@
 # Changes
 
+## 1.3.0
+
+- **NEW**: Drop Python 3.4 support.
+
 ## 1.2.0
 
 - **NEW**: Officially support Python 3.8.

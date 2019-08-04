@@ -3,22 +3,18 @@
 """Setup package."""
 from setuptools import setup, find_packages
 import os
-import imp
-import traceback
+import importlib
 
 
 def get_version():
     """Get version and version_info without importing the entire module."""
 
-    path = os.path.join(os.path.dirname(__file__), 'bracex')
-    fp, pathname, desc = imp.find_module('__meta__', [path])
-    try:
-        vi = imp.load_module('__meta__', fp, pathname, desc).__version_info__
-        return vi._get_canonical(), vi._get_dev_status()
-    except Exception:
-        print(traceback.format_exc())
-    finally:
-        fp.close()
+    path = os.path.join(os.path.dirname(__file__), 'bracex', '__meta__.py')
+    spec = importlib.util.spec_from_file_location("__meta__", path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    vi = module.__version_info__
+    return vi._get_canonical(), vi._get_dev_status()
 
 
 def get_requirements(req):
@@ -44,7 +40,7 @@ VER, DEVSTATUS = get_version()
 
 setup(
     name='bracex',
-    python_requires=">=3.4",
+    python_requires=">=3.5",
     version=VER,
     keywords='bash brace expand',
     description='Bash style brace expander.',
@@ -63,7 +59,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
