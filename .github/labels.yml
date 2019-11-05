@@ -1,0 +1,19 @@
+template: 'facelessuser:master-labels:labels.yml:master'
+
+# Wildcard labels
+
+brace_expansion: true
+extended_glob: true
+
+rules:
+  - labels: [infrastructure]
+    patterns: ['*|{tools,requirements,.github}/**|-*.md']
+
+  - labels: [source]
+    patterns: ['bracex/**']
+
+  - labels: [tests]
+    patterns: ['tests/**']
+
+  - labels: [docs]
+    patterns: ['docs/**|*.md']
