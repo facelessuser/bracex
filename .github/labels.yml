@@ -6,14 +6,14 @@ brace_expansion: true
 extended_glob: true
 
 rules:
-  - labels: [infrastructure]
+  - labels: ['C: infrastructure']
     patterns: ['*|{tools,requirements,.github}/**|-*.md']
 
-  - labels: [source]
+  - labels: ['C: source']
     patterns: ['bracex/**']
 
-  - labels: [tests]
+  - labels: ['C: tests']
     patterns: ['tests/**']
 
-  - labels: [docs]
+  - labels: ['C: docs']
     patterns: ['docs/**|*.md']
