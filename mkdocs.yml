@@ -5,7 +5,8 @@ edit_uri: tree/master/docs/src/markdown
 site_description: Python spell checker.
 copyright: |
   Copyright &copy; 2018 - 2019 <a href="https://github.com/facelessuser">Isaac Muse</a>
-  <br><span class="md-footer-custom-text">emoji provided free by <a href="http://www.emojione.com">EmojiOne</a></span>
+  <br><span class="md-footer-custom-text">emoji provided free by </span>
+  <a href="https://github.com/twitter/twemoji">Twemoji</a>
 
 docs_dir: docs/src/markdown
 theme:
@@ -46,8 +47,8 @@ markdown_extensions:
   - markdown.extensions.footnotes:
   - pymdownx.extrarawhtml:
   - pymdownx.superfences:
+      preserve_tabs: true
   - pymdownx.highlight:
-      css_class: codehilite
       extend_pygments_lang:
         - name: php-inline
           lang: php
@@ -68,15 +69,14 @@ markdown_extensions:
   - pymdownx.caret:
   - pymdownx.smartsymbols:
   - pymdownx.emoji:
-      emoji_generator: !!python/name:pymdownx.emoji.to_png
+      emoji_index: !!python/name:pymdownx.emoji.twemoji
+      emoji_generator: !!python/name:pymdownx.emoji.to_svg
   - pymdownx.escapeall:
       hardbreak: True
       nbsp: True
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.progressbar:
-  - pymdownx.arithmatex:
-  - pymdownx.mark:
   - pymdownx.striphtml:
   - pymdownx.snippets:
       base_path: docs/src/markdown/_snippets
@@ -89,6 +89,6 @@ extra:
     - type: github
       link: https://github.com/facelessuser
 extra_css:
-  - extra-30d8e6755c.css
+  - extra-174a536342.css
 extra_javascript:
-  - extra-0b9b22dd13.js
+  - extra-0d9305e748.js
