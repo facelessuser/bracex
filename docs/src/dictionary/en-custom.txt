@@ -4,6 +4,7 @@ Backport
 Bracex
 Changelog
 GitHub
+Gitter
 MERCHANTABILITY
 MkDocs
 NONINFRINGEMENT
@@ -11,6 +12,7 @@ Preprocess
 PyPI
 TODO
 Tox
+Twemoji
 Virtualenv
 accessor
 deprecations
