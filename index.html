@@ -36,7 +36,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.4.0">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-4.6.0">
     
     
       
@@ -44,9 +44,9 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/application.0284f74d.css">
+      <link rel="stylesheet" href="assets/stylesheets/application.1b62728e.css">
       
-        <link rel="stylesheet" href="assets/stylesheets/application-palette.01803549.css">
+        <link rel="stylesheet" href="assets/stylesheets/application-palette.a8b3c06d.css">
       
       
         
@@ -55,19 +55,19 @@
       
     
     
-      <script src="assets/javascripts/modernizr.74668098.js"></script>
+      <script src="assets/javascripts/modernizr.268332fc.js"></script>
     
     
       
         <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono&display=fallback">
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
     
     <link rel="stylesheet" href="assets/fonts/material-icons.css">
     
     
-      <link rel="stylesheet" href="extra-30d8e6755c.css">
+      <link rel="stylesheet" href="extra-174a536342.css">
     
     
       
@@ -189,7 +189,7 @@
   
     <li class="md-tabs__item">
       
-        <a href="." title="Usage" class="md-tabs__link md-tabs__link--active">
+        <a href="." class="md-tabs__link md-tabs__link--active">
           Usage
         </a>
       
@@ -202,7 +202,7 @@
   
     <li class="md-tabs__item">
       
-        <a href="about/contributing/" title="About" class="md-tabs__link">
+        <a href="about/contributing/" class="md-tabs__link">
           About
         </a>
       
@@ -214,7 +214,7 @@
   </div>
 </nav>
       
-      <main class="md-main">
+      <main class="md-main" role="main">
         <div class="md-main__inner md-grid" data-md-component="container">
           
             
@@ -307,21 +307,21 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" title="Overview" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     Overview
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install" title="Install" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     Install
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#api" title="API" class="md-nav__link">
+  <a href="#api" class="md-nav__link">
     API
   </a>
   
@@ -329,14 +329,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#expand" title="expand()" class="md-nav__link">
+  <a href="#expand" class="md-nav__link">
     expand()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#iexpand" title="iexpand()" class="md-nav__link">
+  <a href="#iexpand" class="md-nav__link">
     iexpand()
   </a>
   
@@ -456,21 +456,21 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#overview" title="Overview" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     Overview
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install" title="Install" class="md-nav__link">
+  <a href="#install" class="md-nav__link">
     Install
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#api" title="API" class="md-nav__link">
+  <a href="#api" class="md-nav__link">
     API
   </a>
   
@@ -478,14 +478,14 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#expand" title="expand()" class="md-nav__link">
+  <a href="#expand" class="md-nav__link">
     expand()
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#iexpand" title="iexpand()" class="md-nav__link">
+  <a href="#iexpand" class="md-nav__link">
     iexpand()
   </a>
   
@@ -518,81 +518,82 @@
                 <h1 id="bracex">Bracex<a class="headerlink" href="#bracex" title="Permanent link"></a></h1>
 <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link"></a></h2>
 <p>Bracex is a brace expanding library (à la Bash) for Python. Brace expanding is used to generate arbitrary strings.</p>
-<div class="codehilite"><pre><span></span><span class="gp">$</span> <span class="nb">echo</span> <span class="o">{{</span>a,b<span class="o">}</span>,c<span class="o">}</span>d
+<div class="highlight"><pre><span></span><span class="gp">$</span> <span class="nb">echo</span> <span class="o">{{</span>a,b<span class="o">}</span>,c<span class="o">}</span>d
 <span class="go">ad bd cd</span>
 </pre></div>
 
 <p>Bracex adds this ability to Python:</p>
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{1,2,3}.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{1,2,3}.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file-1.txt&#39;, &#39;file-2.txt&#39;, &#39;file-3.txt&#39;]</span>
 </pre></div>
 
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{1,2,3}.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{1,2,3}.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file-1.txt&#39;, &#39;file-2.txt&#39;, &#39;file-3.txt&#39;]</span>
 </pre></div>
 
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;-v{,,}&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;-v{,,}&#39;</span><span class="p">)</span>
 <span class="go">[&#39;-v&#39;, &#39;-v&#39;, &#39;-v&#39;]</span>
 </pre></div>
 
 <p>Nested braces:</p>
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{{a,b},c}d.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{{a,b},c}d.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file-ad.txt&#39;, &#39;file-bd.txt&#39;, &#39;file-cd.txt&#39;]</span>
 </pre></div>
 
 <p>Numerical sequences:</p>
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{0..3}.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{0..3}.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file0.txt&#39;, &#39;file1.txt&#39;, &#39;file2.txt&#39;, &#39;file3.txt&#39;]</span>
 </pre></div>
 
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{0..6..2}.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{0..6..2}.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file0.txt&#39;, &#39;file2.txt&#39;, &#39;file4.txt&#39;, &#39;file6.txt&#39;]</span>
 </pre></div>
 
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{00..10..5}.jpg&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{00..10..5}.jpg&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file00.jpg&#39;, &#39;file05.jpg&#39;, &#39;file10.jpg&#39;]</span>
 </pre></div>
 
 <p>Alphabetic sequences:</p>
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{A..D}.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{A..D}.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;fileA.txt&#39;, &#39;fileB.txt&#39;, &#39;fileC.txt&#39;, &#39;fileD.txt&#39;]</span>
 </pre></div>
 
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{A..G..2}.txt&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file{A..G..2}.txt&#39;</span><span class="p">)</span>
 <span class="go">[&#39;fileA.txt&#39;, &#39;fileC.txt&#39;, &#39;fileE.txt&#39;, &#39;fileG.txt&#39;]</span>
 </pre></div>
 
 <p>Allows escaping:</p>
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file\{00..10..5}.jpg&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file\{00..10..5}.jpg&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file{00..10..5}.jpg&#39;]</span>
 </pre></div>
 
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file\{00..10..5}.jpg&#39;</span><span class="p">,</span> <span class="n">keep_escapes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file\{00..10..5}.jpg&#39;</span><span class="p">,</span> <span class="n">keep_escapes</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="go">[&#39;file\\{00..10..5}.jpg&#39;]</span>
 </pre></div>
 
 <p>Bracex will <strong>not</strong> expand braces in the form of <code>${...}</code>:</p>
-<div class="codehilite"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file${a,b,c}.jpg&#39;</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file${a,b,c}.jpg&#39;</span><span class="p">)</span>
 <span class="go">[&#39;file${a,b,c}.jpg&#39;]</span>
 </pre></div>
 
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link"></a></h2>
-<div class="codehilite"><pre><span></span><span class="gp">$</span> pip install bracex
+<div class="highlight"><pre><span></span><span class="gp">$</span> pip install bracex
 </pre></div>
 
 <h2 id="api">API<a class="headerlink" href="#api" title="Permanent link"></a></h2>
 <h3 id="expand"><code>expand()</code><a class="headerlink" href="#expand" title="Permanent link"></a></h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">keep_escapes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">expand</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">keep_escapes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 </pre></div>
 
 <p><code>expand</code> accepts a string and returns a list of expanded strings. It will always return at least a single empty string <code>[""]</code>. By default, escapes will be resolved and the backslashes reduced accordingly, but <code>keep_escapes</code> will process the escapes without stripping them out.</p>
 <h3 id="iexpand"><code>iexpand()</code><a class="headerlink" href="#iexpand" title="Permanent link"></a></h3>
-<div class="codehilite"><pre><span></span><span class="k">def</span> <span class="nf">iexpand</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">keep_escapes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">iexpand</span><span class="p">(</span><span class="n">string</span><span class="p">,</span> <span class="n">keep_escapes</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 </pre></div>
 
 <p><code>iexpand</code> is just like <code>expand</code> except it returns a generator.</p>
                 
                   
+                
                 
               
               
@@ -612,7 +613,7 @@
       <nav class="md-footer-nav__inner md-grid">
         
         
-          <a href="about/contributing/" title="Contributing &amp; Support" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="about/contributing/" title="Contributing & Support" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
@@ -634,8 +635,9 @@
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2018 - 2019 <a href="https://github.com/facelessuser">Isaac Muse</a>
-<br><span class="md-footer-custom-text">emoji provided free by <a href="http://www.emojione.com">EmojiOne</a></span>
+            Copyright &copy; 2018 - 2020 <a href="https://github.com/facelessuser">Isaac Muse</a>
+<br><span class="md-footer-custom-text">emoji provided free by </span>
+<a href="https://github.com/twitter/twemoji">Twemoji</a>
 
           </div>
         
@@ -659,11 +661,11 @@
       
     </div>
     
-      <script src="assets/javascripts/application.245445c6.js"></script>
+      <script src="assets/javascripts/application.808e90bb.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"."}})</script>
       
-        <script src="extra-0b9b22dd13.js"></script>
+        <script src="extra-0d9305e748.js"></script>
       
     
   </body>
