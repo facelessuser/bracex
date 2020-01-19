@@ -1,7 +1,6 @@
 """Version tests."""
 from __future__ import unicode_literals
 import unittest
-import warnings
 from bracex.__meta__ import Version, parse_version
 
 
@@ -91,37 +90,3 @@ class TestVersion(unittest.TestCase):
             Version(1, 2, 3, pre=1)
         with self.assertRaises(ValueError):
             Version(1, 2, 3, dev=1)
-
-
-class TestVersionDeprecations(unittest.TestCase):
-    """Test general deprecations."""
-
-    def test_version_deprecation(self):
-        """Test that version is deprecated."""
-
-        with warnings.catch_warnings(record=True) as w:
-            import bracex
-
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
-            version = bracex.version
-            # Verify some things
-            self.assertTrue(len(w) == 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertEqual(version, bracex.__version__)
-
-    def test_version_info_deprecation(self):
-        """Test that version info is deprecated."""
-
-        with warnings.catch_warnings(record=True) as w:
-            import bracex
-
-            # Cause all warnings to always be triggered.
-            warnings.simplefilter("always")
-            # Trigger a warning.
-            version_info = bracex.version_info
-            # Verify some things
-            self.assertTrue(len(w) == 1)
-            self.assertTrue(issubclass(w[-1].category, DeprecationWarning))
-            self.assertEqual(version_info, bracex.__version_info__)

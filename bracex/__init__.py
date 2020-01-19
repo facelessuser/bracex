@@ -2,7 +2,7 @@
 A Bash like brace expander.
 
 Licensed under MIT
-Copyright (c) 2018 Isaac Muse <isaacmuse@gmail.com>
+Copyright (c) 2018 - 2020 Isaac Muse <isaacmuse@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 documentation files (the "Software"), to deal in the Software without restriction, including without limitation
@@ -20,10 +20,7 @@ IN THE SOFTWARE.
 """
 import itertools
 import re
-from .pep562 import Pep562
-import sys
-import warnings
-from .__meta__ import __version_info__, __version__
+from .__meta__ import __version_info__, __version__  # noqa: F401
 
 __all__ = ('expand', 'iexpand')
 
@@ -32,13 +29,6 @@ _nalpha = list(reversed(_alpha))
 
 RE_INT_ITER = re.compile(r'(-?\d+)\.{2}(-?\d+)(?:\.{2}(-?\d+))?(?=\})')
 RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}(-?\d+))?(?=\})')
-
-PY37 = (3, 7) <= sys.version_info
-
-__deprecated__ = {
-    "version": ("__version__", __version__),
-    "version_info": ("__version_info__", __version_info__)
-}
 
 
 def expand(string, keep_escapes=False):
@@ -418,21 +408,3 @@ class ExpandBrace(object):
         # We found no literals so return an empty string
         if not found_literal:
             yield ""
-
-
-def __getattr__(name):  # noqa: N807
-    """Get attribute."""
-
-    deprecated = __deprecated__.get(name)
-    if deprecated:
-        warnings.warn(
-            "'{}' is deprecated. Use '{}' instead.".format(name, deprecated[0]),
-            category=DeprecationWarning,
-            stacklevel=(3 if PY37 else 4)
-        )
-        return deprecated[1]
-    raise AttributeError("module '{}' has no attribute '{}'".format(__name__, name))
-
-
-if not PY37:
-    Pep562(__name__)

@@ -1,5 +1,9 @@
 # Changes
 
+## 1.4.0
+
+- **NEW**: Remove `version` and `version_info` and the associated deprecation code.
+
 ## 1.3.0
 
 - **NEW**: Drop Python 3.4 support.
