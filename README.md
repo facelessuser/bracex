@@ -9,7 +9,6 @@
 
 Bracex is a brace expanding library (à la Bash) for Python. Brace expanding is used to generate arbitrary strings.
 
-
 ```console
 $ echo {{a,b},c}d
 ad bd cd
@@ -21,6 +20,14 @@ Bracex adds this ability to Python:
 >>> bracex.expand(r'file-{{a,b},c}d.txt')
 ['file-ad.txt', 'file-bd.txt', 'file-cd.txt']
 ```
+
+- **Why Bracex over other solutions?**
+
+    Bracex actually follows pretty closely to how Bash processes braces. It is not a 1:1 implementation of how Bash
+    handles braces, but generally, it follows very closely. Almost all of the test cases are run through Bash first,
+    then our implementation is compared against the results Bash gives. There are a few cases where we have purposely
+    deviated. For instance, we are not handling Bash's command line inputs, so we are not giving special meaning to back
+    ticks and quotes at this time.
 
 ## Install
 
