@@ -527,10 +527,17 @@
 <span class="go">[&#39;file-1.txt&#39;, &#39;file-2.txt&#39;, &#39;file-3.txt&#39;]</span>
 </pre></div>
 
-<div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;file-{1,2,3}.txt&#39;</span><span class="p">)</span>
-<span class="go">[&#39;file-1.txt&#39;, &#39;file-2.txt&#39;, &#39;file-3.txt&#39;]</span>
-</pre></div>
-
+<ul>
+<li>
+<p><strong>Why Bracex over other solutions?</strong></p>
+<p>Bracex actually follows pretty closely to how Bash processes braces. It is not a 1:1 implementation of how Bash
+handles braces, but generally, it follows very closely. Almost all of the test cases are run through Bash first,
+then our implementation is compared against the results Bash gives. There are a few cases where we have purposely
+deviated. For instance, we are not handling Bash's command line inputs, so we are not giving special meaning to back
+ticks and quotes at this time.</p>
+</li>
+</ul>
+<p>More Examples:</p>
 <div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">bracex</span><span class="o">.</span><span class="n">expand</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;-v{,,}&#39;</span><span class="p">)</span>
 <span class="go">[&#39;-v&#39;, &#39;-v&#39;, &#39;-v&#39;]</span>
 </pre></div>
