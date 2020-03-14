@@ -30,14 +30,20 @@ _nalpha = list(reversed(_alpha))
 RE_INT_ITER = re.compile(r'(-?\d+)\.{2}(-?\d+)(?:\.{2}(-?\d+))?(?=\})')
 RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}(-?\d+))?(?=\})')
 
+DEFAULT_LIMIT = 1000
 
-def expand(string, keep_escapes=False):
+
+class ExpansionLimitException(Exception):
+    """Brace expansion limit exception."""
+
+
+def expand(string, keep_escapes=False, limit=DEFAULT_LIMIT):
     """Expand braces."""
 
-    return list(iexpand(string, keep_escapes))
+    return list(iexpand(string, keep_escapes, limit))
 
 
-def iexpand(string, keep_escapes=False):
+def iexpand(string, keep_escapes=False, limit=DEFAULT_LIMIT):
     """Expand braces and return an iterator."""
 
     if isinstance(string, bytes):
@@ -47,11 +53,10 @@ def iexpand(string, keep_escapes=False):
     else:
         is_bytes = False
 
-    if is_bytes:
-        return (entry.encode('latin-1') for entry in ExpandBrace(keep_escapes).expand(string))
-
-    else:
-        return (entry for entry in ExpandBrace(keep_escapes).expand(string))
+    for count, entry in enumerate(ExpandBrace(keep_escapes).expand(string), 1):
+        if 0 < limit < count:
+            raise ExpansionLimitException('Brace expansion has exceeded the limit of {:d}'.format(1))
+        yield entry.encode('latin-1') if is_bytes else entry
 
 
 class StringIter(object):

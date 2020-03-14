@@ -4,6 +4,7 @@ Looking for brace test cases, I stumbled on https://github.com/juliangruber/brac
 The project contained great tests that mirror Bash 4.3's behavior.  And while this library
 was written independently, we used their test sweet to bring this up to Bash 4.3 standard.
 """
+import unittest
 import pytest
 import bracex
 import ast
@@ -202,3 +203,29 @@ class TestBraces:
                 print('    ', a, '<==>', b)
                 self.assert_equal(a, b)
                 index += 1
+
+
+class TestExpansionLimit(unittest.TestCase):
+    """Test brace expansion limit."""
+
+    def test_expansion_limt_expand(self):
+        """Test expansion limit with `expand`."""
+
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{1..11}', limit=10)
+
+    def test_expansion_limt_iexpand(self):
+        """Test expansion limit with `iexpand`."""
+
+        with self.assertRaises(bracex.ExpansionLimitException):
+            list(bracex.iexpand('{1..11}', limit=10))
+
+    def test_expansion_no_limit_expand(self):
+        """Test expansion with no limit with `expand`."""
+
+        self.assertEqual(len(bracex.expand('{1..11}', limit=0)), 11)
+
+    def test_expansion_no_limit_iexpand(self):
+        """Test expansion with no limit with `iexpand`."""
+
+        self.assertEqual(len(list(bracex.iexpand('{1..11}', limit=0))), 11)
