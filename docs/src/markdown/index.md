@@ -98,15 +98,20 @@ $ pip install bracex
 ### `expand()`
 
 ```py3
-def expand(string, keep_escapes=False):
+def expand(string, keep_escapes=False, limit=1000):
 ```
 
-`expand` accepts a string and returns a list of expanded strings. It will always return at least a single empty string `[""]`. By default, escapes will be resolved and the backslashes reduced accordingly, but `keep_escapes` will process the escapes without stripping them out.
+`expand` accepts a string and returns a list of expanded strings. It will always return at least a single empty string
+`[""]`. By default, escapes will be resolved and the backslashes reduced accordingly, but `keep_escapes` will process
+the escapes without stripping them out.
+
+By default, brace expansion growth is limited to `1000`. This limit can be configured via the `limit` option. If you
+would like to remove the limit option, you simply set `limit` to `0`.
 
 ### `iexpand()`
 
 ```py3
-def iexpand(string, keep_escapes=False):
+def iexpand(string, keep_escapes=False, limit=1000):
 ```
 
 `iexpand` is just like `expand` except it returns a generator.

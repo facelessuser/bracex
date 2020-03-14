@@ -1,5 +1,10 @@
 # Changes
 
+## 2.0.0
+
+- **NEW**: An expansion limit of `1000` is enforced by default. This can be controlled, or even removed, via the `limit`
+  option.
+
 ## 1.4.0
 
 - **NEW**: Remove `version` and `version_info` and the associated deprecation code.
