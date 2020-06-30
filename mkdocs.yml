@@ -4,16 +4,16 @@ repo_url: https://github.com/facelessuser/bracex
 edit_uri: tree/master/docs/src/markdown
 site_description: Python spell checker.
 copyright: |
-  Copyright &copy; 2018 - 2020 <a href="https://github.com/facelessuser">Isaac Muse</a>
-  <br><span class="md-footer-custom-text">emoji provided free by </span>
-  <a href="https://github.com/twitter/twemoji">Twemoji</a>
+  Copyright &copy; 2018 - 2020 <a href="https://github.com/facelessuser"  target="_blank" rel="noopener">Isaac Muse</a>
 
 docs_dir: docs/src/markdown
 theme:
   name: material
+  icon:
+    logo: material/book-open-page-variant
   palette:
-    primary: blue
-    accent: blue
+    primary: drac-purple
+    accent: drac-purple
   font:
     text: Roboto
     code: Roboto Mono
@@ -42,7 +42,7 @@ markdown_extensions:
   - markdown.extensions.tables:
   - markdown.extensions.abbr:
   - markdown.extensions.footnotes:
-  - pymdownx.extrarawhtml:
+  - markdown.extensions.md_in_html:
   - pymdownx.superfences:
       preserve_tabs: true
   - pymdownx.highlight:
@@ -80,6 +80,7 @@ markdown_extensions:
   - pymdownx.keys:
       separator: "\uff0b"
   - pymdownx.details:
+  - pymdownx.tabbed:
 
 extra:
   social:
@@ -91,4 +92,6 @@ extra:
 plugins:
   - search
   - git-revision-date-localized
+  - minify:
+      minify_html: true
   - mkdocs_pymdownx_material_extras

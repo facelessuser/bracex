@@ -1,5 +1,9 @@
 # Changes
 
+## 2.1.0
+
+- **NEW**: Officially support Python 3.9.
+
 ## 2.0.0
 
 - **NEW**: An expansion limit of `1000` is enforced by default. This can be controlled, or even removed, via the `limit`
