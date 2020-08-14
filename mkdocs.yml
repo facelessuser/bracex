@@ -9,6 +9,7 @@ copyright: |
 docs_dir: docs/src/markdown
 theme:
   name: material
+  custom_dir: docs/theme
   icon:
     logo: material/book-open-page-variant
   palette:
@@ -66,8 +67,8 @@ markdown_extensions:
   - pymdownx.caret:
   - pymdownx.smartsymbols:
   - pymdownx.emoji:
-      emoji_index: !!python/name:pymdownx.emoji.twemoji
-      emoji_generator: !!python/name:pymdownx.emoji.to_svg
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
   - pymdownx.escapeall:
       hardbreak: True
       nbsp: True
@@ -81,17 +82,18 @@ markdown_extensions:
       separator: "\uff0b"
   - pymdownx.details:
   - pymdownx.tabbed:
+  - pymdownx.saneheaders:
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/facelessuser
     - icon: fontawesome/brands/discord
-      link: https://discord.gg/hZSsa8R
+      link: https://discord.gg/TWs8Tgr
 
 plugins:
   - search
   - git-revision-date-localized
+  - mkdocs_pymdownx_material_extras
   - minify:
       minify_html: true
-  - mkdocs_pymdownx_material_extras
