@@ -4,7 +4,7 @@ repo_url: https://github.com/facelessuser/bracex
 edit_uri: tree/master/docs/src/markdown
 site_description: Python spell checker.
 copyright: |
-  Copyright &copy; 2018 - 2020 <a href="https://github.com/facelessuser"  target="_blank" rel="noopener">Isaac Muse</a>
+  Copyright &copy; 2018 - 2021 <a href="https://github.com/facelessuser"  target="_blank" rel="noopener">Isaac Muse</a>
 
 docs_dir: docs/src/markdown
 theme:
@@ -13,13 +13,13 @@ theme:
   icon:
     logo: material/book-open-page-variant
   palette:
-    primary: drac-purple
-    accent: drac-purple
+    primary: deep purple
+    accent: deep purple
   font:
     text: Roboto
     code: Roboto Mono
   features:
-    - tabs
+    - navigation.tabs
 
 nav:
   - Usage:
