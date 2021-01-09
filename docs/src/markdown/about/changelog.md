@@ -1,5 +1,9 @@
 # Changes
 
+## 2.1.0
+
+- **NEW**: Drop support for Python 3.5.
+
 ## 2.0.1
 
 - **FIX**: Officially support Python 3.9.

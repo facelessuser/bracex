@@ -40,7 +40,7 @@ VER, DEVSTATUS = get_version()
 
 setup(
     name='bracex',
-    python_requires=">=3.5",
+    python_requires=">=3.6",
     version=VER,
     keywords='bash brace expand',
     description='Bash style brace expander.',
@@ -59,7 +59,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Operating System :: OS Independent',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
