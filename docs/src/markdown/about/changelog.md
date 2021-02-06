@@ -3,6 +3,7 @@
 ## 2.1.0
 
 - **NEW**: Drop support for Python 3.5.
+- **FIX**: Fix potential corner case in looping logic.
 
 ## 2.0.1
 

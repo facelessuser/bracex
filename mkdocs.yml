@@ -22,8 +22,8 @@ theme:
     - navigation.tabs
 
 nav:
-  - Usage:
-    - Bracex: index.md
+  - Home:
+    - Usage: index.md
   - About:
     - Contributing &amp; Support: about/contributing.md
     - Development: about/development.md
