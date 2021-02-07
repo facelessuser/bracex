@@ -389,12 +389,12 @@ class ExpandBrace(object):
             padding = 0
 
         if first < last:
-            count = math.ceil(((last + 1) - first) / increment)
+            count = abs(math.ceil(((last + 1) - first) / increment))
             self.update_count(count)
             r = range(first, last + 1, -increment if increment < 0 else increment)
 
         else:
-            count = math.ceil(((last - 1) - first) / increment)
+            count = abs(math.ceil(((last - 1) - first) / increment))
             self.update_count(count)
             r = range(first, last - 1, increment if increment < 0 else -increment)
 
