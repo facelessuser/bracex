@@ -19,6 +19,7 @@ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFT
 IN THE SOFTWARE.
 """
 import itertools
+import math
 import re
 from .__meta__ import __version_info__, __version__  # noqa: F401
 
@@ -131,6 +132,22 @@ class ExpandBrace(object):
         self.expanding = False
         self.keep_escapes = keep_escapes
 
+    def update_count(self, count):
+        """Update the count and assert if count exceeds the max limit."""
+
+        if isinstance(count, int):
+            self.count += count
+        else:
+            self.count -= sum(count)
+            prod = 1
+            for c in count:
+                prod *= c
+            self.count += prod
+        if self.max_limit > 0 and self.count > self.max_limit:
+            raise ExpansionLimitException(
+                'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+            )
+
     def set_expanding(self):
         """Set that we are expanding a sequence, and return whether a release is required by the caller."""
 
@@ -217,19 +234,7 @@ class ExpandBrace(object):
                     # We are Expanding within a group and found a group delimiter
                     # Return what we gathered before the group delimiters.
                     i.rewind(1)
-                    if self.max_limit > 0:
-                        if count:
-                            self.count += 1
-                        else:
-                            self.count -= sum(seq_count)
-                            prod = 1
-                            for item in seq_count:
-                                prod *= item
-                            self.count += prod
-                        if self.count > self.max_limit:
-                            raise ExpansionLimitException(
-                                'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
-                            )
+                    self.update_count(1 if count else seq_count)
                     return (x for x in result)
 
                 # Squash the current set of literals.
@@ -242,20 +247,7 @@ class ExpandBrace(object):
             if self.is_expanding():
                 return None
 
-        if self.max_limit > 0:
-            if count:
-                self.count += 1
-            else:
-                self.count -= sum(seq_count)
-                prod = 1
-                for item in seq_count:
-                    prod *= item
-                self.count += prod
-            if self.count > self.max_limit:
-                raise ExpansionLimitException(
-                    'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
-                )
-
+        self.update_count(1 if count else seq_count)
         return (x for x in result)
 
     def combine(self, a, b):
@@ -397,23 +389,13 @@ class ExpandBrace(object):
             padding = 0
 
         if first < last:
-            count = ((last + 1) - first) / increment
-            if self.max_limit > 0:
-                self.count += count
-                if self.count > self.max_limit:
-                    raise ExpansionLimitException(
-                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
-                    )
+            count = math.ceil(((last + 1) - first) / increment)
+            self.update_count(count)
             r = range(first, last + 1, -increment if increment < 0 else increment)
 
         else:
-            count = ((last - 1) - first) / increment
-            if self.max_limit > 0:
-                self.count += count
-                if self.count > self.max_limit:
-                    raise ExpansionLimitException(
-                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
-                    )
+            count = math.ceil(((last - 1) - first) / increment)
+            self.update_count(count)
             r = range(first, last - 1, increment if increment < 0 else -increment)
 
         return (self.format_value(value, padding) for value in r)
@@ -437,23 +419,13 @@ class ExpandBrace(object):
         end = alpha.index(end)
 
         if start < end:
-            count = ((end + 1) - start) / increment
-            if self.max_limit > 0:
-                self.count += count
-                if self.count > self.max_limit:
-                    raise ExpansionLimitException(
-                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
-                    )
+            count = math.ceil(((end + 1) - start) / increment)
+            self.update_count(count)
             return (c for c in alpha[start:end + 1:increment])
 
         else:
-            count = ((start + 1) - end) / increment
-            if self.max_limit > 0:
-                self.count += count
-                if self.count > self.max_limit:
-                    raise ExpansionLimitException(
-                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
-                    )
+            count = math.ceil(((start + 1) - end) / increment)
+            self.update_count(count)
             return (c for c in alpha[end:start + 1:increment])
 
     def expand(self, string):
