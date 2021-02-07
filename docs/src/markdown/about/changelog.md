@@ -1,5 +1,10 @@
 # Changes
 
+## 2.1.1
+
+- **FIX**: Expansion limit evaluated much too late and hanging can still occur with large expansions. Calculate
+  expansion count and assert limit while parsing strings to reduce chance of hanging.
+
 ## 2.1.0
 
 - **NEW**: Drop support for Python 3.5.

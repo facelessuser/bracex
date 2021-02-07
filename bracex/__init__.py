@@ -53,9 +53,7 @@ def iexpand(string, keep_escapes=False, limit=DEFAULT_LIMIT):
     else:
         is_bytes = False
 
-    for count, entry in enumerate(ExpandBrace(keep_escapes).expand(string), 1):
-        if 0 < limit < count:
-            raise ExpansionLimitException('Brace expansion has exceeded the limit of {:d}'.format(1))
+    for count, entry in enumerate(ExpandBrace(keep_escapes, limit).expand(string), 1):
         yield entry.encode('latin-1') if is_bytes else entry
 
 
@@ -125,10 +123,11 @@ class StringIter(object):
 class ExpandBrace(object):
     """Expand braces like in Bash."""
 
-    def __init__(self, keep_escapes=False):
+    def __init__(self, keep_escapes=False, limit=DEFAULT_LIMIT):
         """Initialize."""
 
-        self.detph = 0
+        self.max_limit = limit
+        self.count = 0
         self.expanding = False
         self.keep_escapes = keep_escapes
 
@@ -182,6 +181,9 @@ class ExpandBrace(object):
         result = ['']
         is_dollar = False
 
+        count = True
+        seq_count = []
+
         try:
             while c:
                 ignore_brace = is_dollar
@@ -197,8 +199,14 @@ class ExpandBrace(object):
                     # Try and get the group
                     index = i.index
                     try:
+                        if self.max_limit > 0:
+                            current_count = self.count
                         seq = self.get_sequence(next(i), i, depth + 1)
                         if seq:
+                            if self.max_limit > 0:
+                                diff = self.count - current_count
+                                seq_count.append(diff)
+                            count = False
                             c = seq
                     except StopIteration:
                         # Searched to end of string
@@ -209,15 +217,44 @@ class ExpandBrace(object):
                     # We are Expanding within a group and found a group delimiter
                     # Return what we gathered before the group delimiters.
                     i.rewind(1)
+                    if self.max_limit > 0:
+                        if count:
+                            self.count += 1
+                        else:
+                            self.count -= sum(seq_count)
+                            prod = 1
+                            for item in seq_count:
+                                prod *= item
+                            self.count += prod
+                        if self.count > self.max_limit:
+                            raise ExpansionLimitException(
+                                'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                            )
                     return (x for x in result)
 
                 # Squash the current set of literals.
                 result = self.squash(result, [c] if isinstance(c, str) else c)
 
                 c = next(i)
+        except ExpansionLimitException:
+            raise
         except StopIteration:
             if self.is_expanding():
                 return None
+
+        if self.max_limit > 0:
+            if count:
+                self.count += 1
+            else:
+                self.count -= sum(seq_count)
+                prod = 1
+                for item in seq_count:
+                    prod *= item
+                self.count += prod
+            if self.count > self.max_limit:
+                raise ExpansionLimitException(
+                    'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                )
 
         return (x for x in result)
 
@@ -293,6 +330,8 @@ class ExpandBrace(object):
                             is_empty = False
 
                 c = next(i)
+        except ExpansionLimitException:
+            raise
         except StopIteration:
             self.release_expanding(release)
             raise
@@ -313,6 +352,8 @@ class ExpandBrace(object):
             m = i.match(RE_CHR_ITER)
             if m:
                 return self.get_char_range(*m.groups())
+        except ExpansionLimitException:
+            raise
         except Exception:  # pragma: no cover
             # TODO: We really should never fail here,
             # but if we do, assume the sequence range
@@ -356,9 +397,23 @@ class ExpandBrace(object):
             padding = 0
 
         if first < last:
+            count = ((last + 1) - first) / increment
+            if self.max_limit > 0:
+                self.count += count
+                if self.count > self.max_limit:
+                    raise ExpansionLimitException(
+                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                    )
             r = range(first, last + 1, -increment if increment < 0 else increment)
 
         else:
+            count = ((last - 1) - first) / increment
+            if self.max_limit > 0:
+                self.count += count
+                if self.count > self.max_limit:
+                    raise ExpansionLimitException(
+                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                    )
             r = range(first, last - 1, increment if increment < 0 else -increment)
 
         return (self.format_value(value, padding) for value in r)
@@ -382,9 +437,23 @@ class ExpandBrace(object):
         end = alpha.index(end)
 
         if start < end:
+            count = ((end + 1) - start) / increment
+            if self.max_limit > 0:
+                self.count += count
+                if self.count > self.max_limit:
+                    raise ExpansionLimitException(
+                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                    )
             return (c for c in alpha[start:end + 1:increment])
 
         else:
+            count = ((start + 1) - end) / increment
+            if self.max_limit > 0:
+                self.count += count
+                if self.count > self.max_limit:
+                    raise ExpansionLimitException(
+                        'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                    )
             return (c for c in alpha[end:start + 1:increment])
 
     def expand(self, string):
