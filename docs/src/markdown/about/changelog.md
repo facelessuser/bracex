@@ -5,7 +5,7 @@
 - **FIX**: Expansion limit evaluated much too late and hanging can still occur with large expansions. Calculate
   expansion count and assert limit while parsing strings to reduce chance of hanging.
 
-## 2.1.0
+## 2.1
 
 - **NEW**: Drop support for Python 3.5.
 - **FIX**: Fix potential corner case in looping logic.
@@ -14,20 +14,20 @@
 
 - **FIX**: Officially support Python 3.9.
 
-## 2.0.0
+## 2.0
 
 - **NEW**: An expansion limit of `1000` is enforced by default. This can be controlled, or even removed, via the `limit`
   option.
 
-## 1.4.0
+## 1.4
 
 - **NEW**: Remove `version` and `version_info` and the associated deprecation code.
 
-## 1.3.0
+## 1.3
 
 - **NEW**: Drop Python 3.4 support.
 
-## 1.2.0
+## 1.2
 
 - **NEW**: Officially support Python 3.8.
 
@@ -35,7 +35,7 @@
 
 - **FIX**: Vendor `pep562` in order to reduce dependencies.
 
-## 1.1.0
+## 1.1
 
 - **NEW**: Deprecate `version` and `version_info` in favor of the more standard `__version__` and `__version_info__`.
 - **FIX**: Proper iteration when using `iexpand`.
@@ -48,6 +48,6 @@
 
 - **FIX**: Allow zero increments in sequence ranges: `{1..10..0}`. Zero will be treated as one just like Bash does.
 
-## 1.0.1
+## 1.0
 
 - **NEW**: Initial release.
