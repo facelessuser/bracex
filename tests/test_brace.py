@@ -208,24 +208,196 @@ class TestBraces:
 class TestExpansionLimit(unittest.TestCase):
     """Test brace expansion limit."""
 
-    def test_expansion_limt_expand(self):
-        """Test expansion limit with `expand`."""
+    def test_expansion_limit_expand(self):
+        """Test expansion limit."""
 
+        self.assertEqual(len(bracex.expand('text{1,2}text{{3,4,{5,6}text{7,8}},{9}}', limit=14)), 14)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('text{1,2}text{{3,4,{5,6}text{7,8}},{9}}', limit=13)
+
+    def test_expansion_no_limit_expand(self):
+        """Test expansion no limit."""
+
+        self.assertEqual(len(bracex.expand('text{1,2}text{{3,4,{5,6}text{7,8}},{9}}', limit=0)), 14)
+
+    def test_expansion_char_limt_expand(self):
+        """Test expansion character limit with `expand`."""
+
+        self.assertEqual(len(bracex.expand('{a..k}', limit=11)), 11)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k}', limit=10)
+
+    def test_expansion_char_reverse_limt_expand(self):
+        """Test expansion character reversed limit with `expand`."""
+
+        self.assertEqual(len(bracex.expand('{k..a}', limit=11)), 11)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a}', limit=10)
+
+    def test_expansion_char_limt_expand_step2(self):
+        """Test expansion character limit with `expand` step 2."""
+
+        self.assertEqual(len(bracex.expand('{a..k..2}', limit=6)), 6)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k..2}', limit=5)
+
+    def test_expansion_char_limt_expand_step3(self):
+        """Test expansion character limit with `expand` step 3."""
+
+        self.assertEqual(len(bracex.expand('{a..k..3}', limit=4)), 4)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k..3}', limit=3)
+
+    def test_expansion_char_limt_expand_step5(self):
+        """Test expansion character limit with `expand` step 5."""
+
+        self.assertEqual(len(bracex.expand('{a..k..5}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k..5}', limit=2)
+
+    def test_expansion_char_reverse_limt_expand_step2(self):
+        """Test expansion character reversed limit with `expand` step 2."""
+
+        self.assertEqual(len(bracex.expand('{k..a..2}', limit=6)), 6)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a..2}', limit=5)
+
+    def test_expansion_char_reverse_limt_expand_step3(self):
+        """Test expansion character reversed limit with `expand` step 3."""
+
+        self.assertEqual(len(bracex.expand('{k..a..3}', limit=4)), 4)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a..3}', limit=3)
+
+    def test_expansion_char_reverse_limt_expand_step5(self):
+        """Test expansion character reversed limit with `expand` step 5."""
+
+        self.assertEqual(len(bracex.expand('{k..a..5}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a..5}', limit=2)
+
+    def test_expansion_char_limt_expand_step2_neg(self):
+        """Test expansion character limit with `expand` step -2."""
+
+        self.assertEqual(len(bracex.expand('{a..k..-2}', limit=6)), 6)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k..-2}', limit=5)
+
+    def test_expansion_char_limt_expand_step3_neg(self):
+        """Test expansion character limit with `expand` step -3."""
+
+        self.assertEqual(len(bracex.expand('{a..k..-3}', limit=4)), 4)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k..-3}', limit=3)
+
+    def test_expansion_char_limt_expand_step5_neg(self):
+        """Test expansion character limit with `expand` step -5."""
+
+        self.assertEqual(len(bracex.expand('{a..k..-5}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{a..k..-5}', limit=2)
+
+    def test_expansion_char_reverse_limt_expand_step2_neg(self):
+        """Test expansion character reversed limit with `expand` step -2."""
+
+        self.assertEqual(len(bracex.expand('{k..a..-2}', limit=6)), 6)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a..-2}', limit=5)
+
+    def test_expansion_char_reverse_limt_expand_step3_neg(self):
+        """Test expansion character reversed limit with `expand` step -3."""
+
+        self.assertEqual(len(bracex.expand('{k..a..-3}', limit=4)), 4)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a..-3}', limit=3)
+
+    def test_expansion_char_reverse_limt_expand_step5_neg(self):
+        """Test expansion character reversed limit with `expand` step -5."""
+
+        self.assertEqual(len(bracex.expand('{k..a..-5}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{k..a..-5}', limit=2)
+
+    def test_expansion_num_limt_expand(self):
+        """Test expansion numeric limit with `expand`."""
+
+        self.assertEqual(len(bracex.expand('{1..11}', limit=11)), 11)
         with self.assertRaises(bracex.ExpansionLimitException):
             bracex.expand('{1..11}', limit=10)
 
-    def test_expansion_limt_iexpand(self):
-        """Test expansion limit with `iexpand`."""
+    def test_expansion_num_reverse_limt_expand(self):
+        """Test expansion numeric reversed limit with `expand`."""
 
+        self.assertEqual(len(bracex.expand('{11..1}', limit=11)), 11)
         with self.assertRaises(bracex.ExpansionLimitException):
-            list(bracex.iexpand('{1..11}', limit=10))
+            bracex.expand('{11..1}', limit=10)
 
-    def test_expansion_no_limit_expand(self):
-        """Test expansion with no limit with `expand`."""
+    def test_expansion_num_negative_limt_expand(self):
+        """Test expansion numeric negative limit with `expand`."""
 
-        self.assertEqual(len(bracex.expand('{1..11}', limit=0)), 11)
+        self.assertEqual(len(bracex.expand('{-1..-11}', limit=11)), 11)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{-1..-11}', limit=10)
 
-    def test_expansion_no_limit_iexpand(self):
-        """Test expansion with no limit with `iexpand`."""
+    def test_expansion_num_negative_reversed_limt_expand(self):
+        """Test expansion numeric negative reversed limit with `expand`."""
 
-        self.assertEqual(len(list(bracex.iexpand('{1..11}', limit=0))), 11)
+        self.assertEqual(len(bracex.expand('{-11..-1}', limit=11)), 11)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{-11..-1}', limit=10)
+
+    def test_expansion_num_limt_expand_step(self):
+        """Test expansion numeric limit with `expand` step."""
+
+        self.assertEqual(len(bracex.expand('{1..11..5}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{1..11..5}', limit=2)
+
+    def test_expansion_num_reverse_limt_expand_step(self):
+        """Test expansion numeric reversed limit with `expand` step."""
+
+        self.assertEqual(len(bracex.expand('{11..1..3}', limit=4)), 4)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{11..1..3}', limit=3)
+
+    def test_expansion_num_negative_limt_expand_step(self):
+        """Test expansion numeric negative limit with `expand`."""
+
+        self.assertEqual(len(bracex.expand('{-1..-11..2}', limit=6)), 6)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{-1..-11..2}', limit=5)
+
+    def test_expansion_num_negative_reversed_limt_expand_step(self):
+        """Test expansion numeric negative reversed limit with `expand`."""
+
+        self.assertEqual(len(bracex.expand('{-11..-1..7}', limit=2)), 2)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{-11..-1..7}', limit=1)
+
+    def test_expansion_num_limt_expand_neg_step(self):
+        """Test expansion numeric limit with `expand` negative step."""
+
+        self.assertEqual(len(bracex.expand('{1..11..-5}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{1..11..-5}', limit=2)
+
+    def test_expansion_num_reverse_limt_expand_neg_step(self):
+        """Test expansion numeric reversed limit with `expand` negative step."""
+
+        self.assertEqual(len(bracex.expand('{11..1..-3}', limit=4)), 4)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{11..1..-3}', limit=3)
+
+    def test_expansion_num_negative_limt_expand_neg_step(self):
+        """Test expansion numeric negative limit with `expand` negative step."""
+
+        self.assertEqual(len(bracex.expand('{-1..-11..-2}', limit=6)), 6)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{-1..-11..-2}', limit=5)
+
+    def test_expansion_num_negative_reversed_limt_expand_neg_step(self):
+        """Test expansion numeric negative reversed limit with `expand` negative step."""
+
+        self.assertEqual(len(bracex.expand('{-11..-11..-7}', limit=1)), 1)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('{-11..-1..-7}', limit=1)

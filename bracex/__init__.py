@@ -241,8 +241,6 @@ class ExpandBrace(object):
                 result = self.squash(result, [c] if isinstance(c, str) else c)
 
                 c = next(i)
-        except ExpansionLimitException:
-            raise
         except StopIteration:
             if self.is_expanding():
                 return None
@@ -322,8 +320,6 @@ class ExpandBrace(object):
                             is_empty = False
 
                 c = next(i)
-        except ExpansionLimitException:
-            raise
         except StopIteration:
             self.release_expanding(release)
             raise
@@ -389,13 +385,10 @@ class ExpandBrace(object):
             padding = 0
 
         if first < last:
-            count = abs(math.ceil(((last + 1) - first) / increment))
-            self.update_count(count)
+            self.update_count(math.ceil(abs(((last + 1) - first) / increment)))
             r = range(first, last + 1, -increment if increment < 0 else increment)
-
         else:
-            count = abs(math.ceil(((last - 1) - first) / increment))
-            self.update_count(count)
+            self.update_count(math.ceil(abs(((first + 1) - last) / increment)))
             r = range(first, last - 1, increment if increment < 0 else -increment)
 
         return (self.format_value(value, padding) for value in r)
@@ -419,13 +412,11 @@ class ExpandBrace(object):
         end = alpha.index(end)
 
         if start < end:
-            count = math.ceil(((end + 1) - start) / increment)
-            self.update_count(count)
+            self.update_count(math.ceil(((end + 1) - start) / increment))
             return (c for c in alpha[start:end + 1:increment])
 
         else:
-            count = math.ceil(((start + 1) - end) / increment)
-            self.update_count(count)
+            self.update_count(math.ceil(((start + 1) - end) / increment))
             return (c for c in alpha[end:start + 1:increment])
 
     def expand(self, string):
