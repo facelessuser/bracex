@@ -1,5 +1,9 @@
 # Changes
 
+## 2.2
+
+- **NEW**: Officially support Python 3.10.
+
 ## 2.1.1
 
 - **FIX**: Expansion limit evaluated much too late and hanging can still occur with large expansions. Calculate
