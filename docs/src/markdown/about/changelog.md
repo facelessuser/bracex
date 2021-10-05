@@ -2,7 +2,8 @@
 
 ## 2.2
 
-- **NEW** Support Python 3.10
+- **NEW**: Support Python 3.10
+- **NEW**: Command line interface using `python3 -m bracex`
 
 ## 2.1.1
 

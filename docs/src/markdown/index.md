@@ -17,6 +17,20 @@ Bracex adds this ability to Python:
 ['file-1.txt', 'file-2.txt', 'file-3.txt']
 ```
 
+and as a command:
+
+```shell-session
+$ python3 -m bracex -0 "base/{a,b}/{1..2}" | xargs -0 mkdir -p
+$ tree base/
+base/
+├── a
+│   ├── 1
+│   └── 2
+└── b
+    ├── 1
+    └── 2
+```
+
 - **Why Bracex over other solutions?**
 
     Bracex actually follows pretty closely to how Bash processes braces. It is not a 1:1 implementation of how Bash
@@ -24,6 +38,8 @@ Bracex adds this ability to Python:
     then our implementation is compared against the results Bash gives. There are a few cases where we have purposely
     deviated. For instance, we are not handling Bash's command line inputs, so we are not giving special meaning to back
     ticks and quotes at this time.
+
+    On the command line Bracex can handle more expansions than Bash itself.
 
 More Examples:
 
@@ -115,3 +131,22 @@ def iexpand(string, keep_escapes=False, limit=1000):
 ```
 
 `iexpand` is just like `expand` except it returns a generator.
+
+## Command line interface
+
+```shell-session
+$ python3 -m bracex --help
+usage: python -mbracex [-h] [--terminator STR | -0] [--version] expression
+
+Expands a bash-style brace expression, and outputs each expansion.
+
+positional arguments:
+  expression            Brace expression to expand
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --terminator STR, -t STR
+                        Terminate each expansion with string STR (default: \n)
+  -0                    Terminate each expansion with a NUL character
+  --version             show program's version number and exit
+```
