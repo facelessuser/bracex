@@ -54,7 +54,7 @@ def iexpand(string, keep_escapes=False, limit=DEFAULT_LIMIT):
     else:
         is_bytes = False
 
-    for count, entry in enumerate(ExpandBrace(keep_escapes, limit).expand(string), 1):
+    for entry in ExpandBrace(keep_escapes, limit).expand(string):
         yield entry.encode('latin-1') if is_bytes else entry
 
 
@@ -216,8 +216,7 @@ class ExpandBrace(object):
                     # Try and get the group
                     index = i.index
                     try:
-                        if self.max_limit > 0:
-                            current_count = self.count
+                        current_count = self.count
                         seq = self.get_sequence(next(i), i, depth + 1)
                         if seq:
                             if self.max_limit > 0:
