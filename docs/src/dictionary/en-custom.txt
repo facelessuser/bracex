@@ -8,12 +8,14 @@ Gitter
 MERCHANTABILITY
 MkDocs
 NONINFRINGEMENT
+NUL
 Preprocess
 PyPI
 TODO
 Tox
 Twemoji
 Virtualenv
+Willmer
 accessor
 deprecations
 expander
@@ -26,6 +28,7 @@ prerelease
 prereleases
 pytest
 regex
+stdout
 sublicense
 tuple
 wordlist

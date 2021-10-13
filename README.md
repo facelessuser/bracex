@@ -21,6 +21,20 @@ Bracex adds this ability to Python:
 ['file-ad.txt', 'file-bd.txt', 'file-cd.txt']
 ```
 
+and as a command:
+
+```console
+$ python3 -m bracex -0 "base/{a,b}/{1..2}" | xargs -0 mkdir -p
+$ tree base/
+base/
+├── a
+│   ├── 1
+│   └── 2
+└── b
+    ├── 1
+    └── 2
+```
+
 - **Why Bracex over other solutions?**
 
     Bracex actually follows pretty closely to how Bash processes braces. It is not a 1:1 implementation of how Bash
@@ -28,6 +42,8 @@ Bracex adds this ability to Python:
     then our implementation is compared against the results Bash gives. There are a few cases where we have purposely
     deviated. For instance, we are not handling Bash's command line inputs, so we are not giving special meaning to back
     ticks and quotes at this time.
+
+    On the command line Bracex can handle more expansions than Bash itself.
 
 ## Install
 
