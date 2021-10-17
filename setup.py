@@ -50,6 +50,7 @@ setup(
     author_email='Isaac.Muse@gmail.com',
     url='https://github.com/facelessuser/bracex',
     packages=find_packages(exclude=['tests', 'tools']),
+    package_data={"bracex": ["py.typed"]},
     install_requires=get_requirements("requirements/project.txt"),
     license='MIT License',
     classifiers=[
