@@ -21,7 +21,10 @@ IN THE SOFTWARE.
 import itertools
 import math
 import re
+from typing import TypeVar, List, Iterator
 from .__meta__ import __version_info__, __version__  # noqa: F401
+
+String = TypeVar('String', str, bytes)
 
 __all__ = ('expand', 'iexpand')
 
@@ -38,23 +41,23 @@ class ExpansionLimitException(Exception):
     """Brace expansion limit exception."""
 
 
-def expand(string, keep_escapes=False, limit=DEFAULT_LIMIT):
+def expand(string: String, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> List[String]:
     """Expand braces."""
 
     return list(iexpand(string, keep_escapes, limit))
 
 
-def iexpand(string, keep_escapes=False, limit=DEFAULT_LIMIT):
+def iexpand(string: String, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> Iterator[String]:
     """Expand braces and return an iterator."""
 
     if isinstance(string, bytes):
         is_bytes = True
-        string = string.decode('latin-1')
-
+        value = string.decode('latin-1')
     else:
+        value = string
         is_bytes = False
 
-    for entry in ExpandBrace(keep_escapes, limit).expand(string):
+    for entry in ExpandBrace(keep_escapes, limit).expand(value):
         yield entry.encode('latin-1') if is_bytes else entry
 
 
