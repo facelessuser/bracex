@@ -54,14 +54,11 @@ def iexpand(string: String, keep_escapes: bool = False, limit: int = DEFAULT_LIM
     """Expand braces and return an iterator."""
 
     if isinstance(string, bytes):
-        is_bytes = True
-        value = string.decode('latin-1')
+        for entry in ExpandBrace(keep_escapes, limit).expand(string.decode('latin-1')):
+            yield entry.encode('latin-1')
     else:
-        value = string
-        is_bytes = False
-
-    for entry in ExpandBrace(keep_escapes, limit).expand(value):
-        yield entry.encode('latin-1') if is_bytes else entry  # type: ignore
+        for entry in ExpandBrace(keep_escapes, limit).expand(string):
+            yield entry
 
 
 class StringIter:
