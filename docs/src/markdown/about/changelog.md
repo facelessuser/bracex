@@ -4,6 +4,7 @@
 
 - **NEW**: Support Python 3.10
 - **NEW**: Command line interface using `python3 -m bracex`
+- **NEW**: Add static types to API.
 
 ## 2.1.1
 

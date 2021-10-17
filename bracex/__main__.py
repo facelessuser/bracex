@@ -21,9 +21,10 @@ IN THE SOFTWARE.
 """
 import argparse
 import bracex
+from typing import Optional
 
 
-def main(argv=None):
+def main(argv: Optional[str] = None) -> None:
     """Accept command line arguments and output brace expansion to stdout."""
     parser = argparse.ArgumentParser(
         prog='python -m bracex',
