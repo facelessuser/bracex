@@ -283,7 +283,7 @@ class ExpandBrace:
             return (x for x in item)
 
         try:
-            while c:
+            while True:
                 # Bash has some special top level logic. if `}` follows `{` but hasn't matched
                 # a group yet, keep going except when the first 2 bytes are `{}` which gets
                 # completely ignored.
@@ -326,13 +326,10 @@ class ExpandBrace:
                             is_empty = False
 
                 c = next(i)
+
         except StopIteration:
             self.release_expanding(release)
             raise
-
-        # This is here for correctness only,
-        # we'll never actually hit it as we'll assert first.
-        return None  # pragma: no cover
 
     def get_range(self, i: StringIter) -> Optional[Iterator[str]]:
         """
