@@ -20,6 +20,8 @@ theme:
     code: Roboto Mono
   features:
     - navigation.tabs
+  pymdownx:
+    sponsor: "https://github.com/sponsors/facelessuser"
 
 nav:
   - Home:
@@ -32,7 +34,7 @@ nav:
 
 markdown_extensions:
   - markdown.extensions.toc:
-      slugify: !!python/name:pymdownx.slugs.uslugify
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
       permalink: ""
   - markdown.extensions.admonition:
   - markdown.extensions.smarty:
@@ -82,6 +84,7 @@ markdown_extensions:
       separator: "\uff0b"
   - pymdownx.details:
   - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.saneheaders:
 
 extra:
