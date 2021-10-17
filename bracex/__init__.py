@@ -21,12 +21,15 @@ IN THE SOFTWARE.
 import itertools
 import math
 import re
-from typing import TypeVar, List, Iterator
-from .__meta__ import __version_info__, __version__  # noqa: F401
+from typing import TypeVar, List, Iterator, Pattern, Optional, Sequence, Union, Match
+from . import __meta__
 
 String = TypeVar('String', str, bytes)
 
 __all__ = ('expand', 'iexpand')
+
+__version__ = __meta__.__version__
+__version_info__ = __meta__.__version_info__
 
 _alpha = [chr(x) if x != 0x5c else '' for x in range(ord('A'), ord('z') + 1)]
 _nalpha = list(reversed(_alpha))
@@ -58,29 +61,29 @@ def iexpand(string: String, keep_escapes: bool = False, limit: int = DEFAULT_LIM
         is_bytes = False
 
     for entry in ExpandBrace(keep_escapes, limit).expand(value):
-        yield entry.encode('latin-1') if is_bytes else entry
+        yield entry.encode('latin-1') if is_bytes else entry  # type: ignore
 
 
-class StringIter(object):
+class StringIter:
     """Preprocess replace tokens."""
 
-    def __init__(self, string):
+    def __init__(self, string: str) -> None:
         """Initialize."""
 
         self._string = string
         self._index = 0
 
-    def __iter__(self):
+    def __iter__(self) -> "StringIter":  # pragma: no cover
         """Iterate."""
 
         return self
 
-    def __next__(self):
+    def __next__(self) -> str:
         """Python 3 iterator compatible next."""
 
         return self.iternext()
 
-    def match(self, pattern):
+    def match(self, pattern: Pattern[str]) -> Optional[Match[str]]:
         """Perform regex match at index."""
 
         m = pattern.match(self._string, self._index)
@@ -89,22 +92,22 @@ class StringIter(object):
         return m
 
     @property
-    def index(self):
+    def index(self) -> int:
         """Get current index."""
 
         return self._index
 
-    def previous(self):  # pragma: no cover
+    def previous(self) -> str:  # pragma: no cover
         """Get previous char."""
 
         return self._string[self._index - 1]
 
-    def advance(self, count):
+    def advance(self, count: int) -> None:
         """Advanced the index."""
 
         self._index += count
 
-    def rewind(self, count):
+    def rewind(self, count: int) -> None:
         """Rewind index."""
 
         if count > self._index:  # pragma: no cover
@@ -112,7 +115,7 @@ class StringIter(object):
 
         self._index -= count
 
-    def iternext(self):
+    def iternext(self) -> str:
         """Iterate through characters of the string."""
 
         try:
@@ -124,10 +127,10 @@ class StringIter(object):
         return char
 
 
-class ExpandBrace(object):
+class ExpandBrace:
     """Expand braces like in Bash."""
 
-    def __init__(self, keep_escapes=False, limit=DEFAULT_LIMIT):
+    def __init__(self, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> None:
         """Initialize."""
 
         self.max_limit = limit
@@ -135,7 +138,7 @@ class ExpandBrace(object):
         self.expanding = False
         self.keep_escapes = keep_escapes
 
-    def update_count(self, count):
+    def update_count(self, count: Union[int, List[int]]) -> None:
         """Update the count and assert if count exceeds the max limit."""
 
         if isinstance(count, int):
@@ -151,7 +154,7 @@ class ExpandBrace(object):
                 'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
             )
 
-    def set_expanding(self):
+    def set_expanding(self) -> bool:
         """Set that we are expanding a sequence, and return whether a release is required by the caller."""
 
         status = not self.expanding
@@ -159,18 +162,18 @@ class ExpandBrace(object):
             self.expanding = True
         return status
 
-    def is_expanding(self):
+    def is_expanding(self) -> bool:
         """Get status of whether we are expanding."""
 
         return self.expanding
 
-    def release_expanding(self, release):
+    def release_expanding(self, release: bool) -> None:
         """Release the expand status."""
 
         if release:
             self.expanding = False
 
-    def get_escape(self, c, i):
+    def get_escape(self, c: str, i: StringIter) -> str:
         """Get an escape."""
 
         try:
@@ -179,7 +182,7 @@ class ExpandBrace(object):
             escaped = ''
         return c + escaped if self.keep_escapes else escaped
 
-    def squash(self, a, b):
+    def squash(self, a: Union[Iterator[str], Sequence[str]], b: Union[Iterator[str], Sequence[str]]) -> Iterator[str]:
         """
         Returns a generator that squashes two iterables into one.
 
@@ -190,7 +193,7 @@ class ExpandBrace(object):
 
         return ((''.join(x) if isinstance(x, tuple) else x) for x in itertools.product(a, b))
 
-    def get_literals(self, c, i, depth):
+    def get_literals(self, c: str, i: StringIter, depth: int) -> Optional[Iterator[str]]:
         """
         Get a string literal.
 
@@ -198,7 +201,7 @@ class ExpandBrace(object):
         Also gather chars between braces and commas within a group (is_expanding).
         """
 
-        result = ['']
+        result = iter([''])
         is_dollar = False
 
         count = True
@@ -206,6 +209,7 @@ class ExpandBrace(object):
 
         try:
             while c:
+                value = [c]  # type: Union[Iterator[str], List[str]]
                 ignore_brace = is_dollar
                 is_dollar = False
 
@@ -213,7 +217,7 @@ class ExpandBrace(object):
                     is_dollar = True
 
                 elif c == '\\':
-                    c = [self.get_escape(c, i)]
+                    value = [self.get_escape(c, i)]
 
                 elif not ignore_brace and c == '{':
                     # Try and get the group
@@ -226,7 +230,7 @@ class ExpandBrace(object):
                                 diff = self.count - current_count
                                 seq_count.append(diff)
                             count = False
-                            c = seq
+                            value = seq
                     except StopIteration:
                         # Searched to end of string
                         # and still didn't find it.
@@ -240,7 +244,7 @@ class ExpandBrace(object):
                     return (x for x in result)
 
                 # Squash the current set of literals.
-                result = self.squash(result, [c] if isinstance(c, str) else c)
+                result = self.squash(result, value)
 
                 c = next(i)
         except StopIteration:
@@ -250,14 +254,14 @@ class ExpandBrace(object):
         self.update_count(1 if count else seq_count)
         return (x for x in result)
 
-    def combine(self, a, b):
+    def combine(self, a: Union[Iterator[str], Sequence[str]], b: Union[Iterator[str], Sequence[str]]) -> Iterator[str]:
         """A generator that combines two iterables."""
 
         for l in (a, b):
             for x in l:
                 yield x
 
-    def get_sequence(self, c, i, depth):
+    def get_sequence(self, c: str, i: StringIter, depth: int) -> Optional[Iterator[str]]:
         """
         Get the sequence.
 
@@ -265,7 +269,7 @@ class ExpandBrace(object):
         It will basically crawl to the end or find a valid series.
         """
 
-        result = []
+        result = []  # type: Union[List[str], Iterator[str]]
         release = self.set_expanding()
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
         is_empty = True  # Tracks whether the current slot is empty `{slot,slot,slot}`.
@@ -326,7 +330,11 @@ class ExpandBrace(object):
             self.release_expanding(release)
             raise
 
-    def get_range(self, i):
+        # This is here for correctness only,
+        # we'll never actually hit it as we'll assert first.
+        return None  # pragma: no cover
+
+    def get_range(self, i: StringIter) -> Optional[Iterator[str]]:
         """
         Check and retrieve range if value is a valid range.
 
@@ -353,7 +361,7 @@ class ExpandBrace(object):
 
         return None
 
-    def format_value(self, value, padding):
+    def format_value(self, value: int, padding: int) -> str:
         """Get padding adjusting for negative values."""
 
         if padding:
@@ -362,17 +370,17 @@ class ExpandBrace(object):
         else:
             return str(value)
 
-    def get_int_range(self, start, end, increment=None):
+    def get_int_range(self, start: str, end: str, increment: Optional[str] = None) -> Iterator[str]:
         """Get an integer range between start and end and increments of increment."""
 
         first, last = int(start), int(end)
-        increment = int(increment) if increment is not None else 1
+        inc = int(increment) if increment is not None else 1
         max_length = max(len(start), len(end))
 
         # Zero doesn't make sense as an incrementer
         # but like bash, just assume one
-        if increment == 0:
-            increment = 1
+        if inc == 0:
+            inc = 1
 
         if start[0] == '-':
             start = start[1:]
@@ -387,48 +395,48 @@ class ExpandBrace(object):
             padding = 0
 
         if first < last:
-            self.update_count(math.ceil(abs(((last + 1) - first) / increment)))
-            r = range(first, last + 1, -increment if increment < 0 else increment)
+            self.update_count(math.ceil(abs(((last + 1) - first) / inc)))
+            r = range(first, last + 1, -inc if inc < 0 else inc)
         else:
-            self.update_count(math.ceil(abs(((first + 1) - last) / increment)))
-            r = range(first, last - 1, increment if increment < 0 else -increment)
+            self.update_count(math.ceil(abs(((first + 1) - last) / inc)))
+            r = range(first, last - 1, inc if inc < 0 else -inc)
 
         return (self.format_value(value, padding) for value in r)
 
-    def get_char_range(self, start, end, increment=None):
+    def get_char_range(self, start: str, end: str, increment: Optional[str] = None) -> Iterator[str]:
         """Get a range of alphabetic characters."""
 
-        increment = int(increment) if increment else 1
-        if increment < 0:
-            increment = -increment
+        inc = int(increment) if increment else 1
+        if inc < 0:
+            inc = -inc
 
         # Zero doesn't make sense as an incrementer
         # but like bash, just assume one
-        if increment == 0:
-            increment = 1
+        if inc == 0:
+            inc = 1
 
         inverse = start > end
         alpha = _nalpha if inverse else _alpha
 
-        start = alpha.index(start)
-        end = alpha.index(end)
+        first = alpha.index(start)
+        last = alpha.index(end)
 
-        if start < end:
-            self.update_count(math.ceil(((end + 1) - start) / increment))
-            return (c for c in alpha[start:end + 1:increment])
+        if first < last:
+            self.update_count(math.ceil(((last + 1) - first) / inc))
+            return (c for c in alpha[first:last + 1:inc])
 
         else:
-            self.update_count(math.ceil(((start + 1) - end) / increment))
-            return (c for c in alpha[end:start + 1:increment])
+            self.update_count(math.ceil(((first + 1) - last) / inc))
+            return (c for c in alpha[last:first + 1:inc])
 
-    def expand(self, string):
+    def expand(self, string: str) -> Iterator[str]:
         """Expand."""
 
         self.expanding = False
         empties = []
         found_literal = False
         if string:
-            i = iter(StringIter(string))
+            i = StringIter(string)
             value = self.get_literals(next(i), i, 0)
             if value is not None:
                 for x in value:
