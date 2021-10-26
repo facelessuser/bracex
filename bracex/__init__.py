@@ -21,10 +21,9 @@ IN THE SOFTWARE.
 import itertools
 import math
 import re
-from typing import TypeVar, List, Iterator, Pattern, Optional, Sequence, Union, Match
+from typing import List, Iterator, Pattern, Optional, Match, Iterable, AnyStr
 from . import __meta__
 
-String = TypeVar('String', str, bytes)
 
 __all__ = ('expand', 'iexpand')
 
@@ -44,13 +43,13 @@ class ExpansionLimitException(Exception):
     """Brace expansion limit exception."""
 
 
-def expand(string: String, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> List[String]:
+def expand(string: AnyStr, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> List[AnyStr]:
     """Expand braces."""
 
     return list(iexpand(string, keep_escapes, limit))
 
 
-def iexpand(string: String, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> Iterator[String]:
+def iexpand(string: AnyStr, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> Iterator[AnyStr]:
     """Expand braces and return an iterator."""
 
     if isinstance(string, bytes):
@@ -135,17 +134,20 @@ class ExpandBrace:
         self.expanding = False
         self.keep_escapes = keep_escapes
 
-    def update_count(self, count: Union[int, List[int]]) -> None:
+    def update_count_seq(self, count: List[int]) -> None:
+        """Update the count from a list after evaluating a brace sequence and assert if count exceeds the max limit."""
+
+        self.count -= sum(count)
+        prod = 1
+        for c in count:
+            prod *= c
+        self.update_count(prod)
+
+    def update_count(self, count: int) -> None:
         """Update the count and assert if count exceeds the max limit."""
 
-        if isinstance(count, int):
-            self.count += count
-        else:
-            self.count -= sum(count)
-            prod = 1
-            for c in count:
-                prod *= c
-            self.count += prod
+        self.count += count
+
         if self.max_limit > 0 and self.count > self.max_limit:
             raise ExpansionLimitException(
                 'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
@@ -179,7 +181,7 @@ class ExpandBrace:
             escaped = ''
         return c + escaped if self.keep_escapes else escaped
 
-    def squash(self, a: Union[Iterator[str], Sequence[str]], b: Union[Iterator[str], Sequence[str]]) -> Iterator[str]:
+    def squash(self, a: Iterable[str], b: Iterable[str]) -> Iterator[str]:
         """
         Returns a generator that squashes two iterables into one.
 
@@ -206,7 +208,7 @@ class ExpandBrace:
 
         try:
             while c:
-                value = [c]  # type: Union[Iterator[str], List[str]]
+                value = [c]  # type: Iterable[str]
                 ignore_brace = is_dollar
                 is_dollar = False
 
@@ -237,7 +239,10 @@ class ExpandBrace:
                     # We are Expanding within a group and found a group delimiter
                     # Return what we gathered before the group delimiters.
                     i.rewind(1)
-                    self.update_count(1 if count else seq_count)
+                    if count:
+                        self.update_count(1)
+                    else:
+                        self.update_count_seq(seq_count)
                     return (x for x in result)
 
                 # Squash the current set of literals.
@@ -248,10 +253,13 @@ class ExpandBrace:
             if self.is_expanding():
                 return None
 
-        self.update_count(1 if count else seq_count)
+        if count:
+            self.update_count(1)
+        else:
+            self.update_count_seq(seq_count)
         return (x for x in result)
 
-    def combine(self, a: Union[Iterator[str], Sequence[str]], b: Union[Iterator[str], Sequence[str]]) -> Iterator[str]:
+    def combine(self, a: Iterable[str], b: Iterable[str]) -> Iterator[str]:
         """A generator that combines two iterables."""
 
         for l in (a, b):
@@ -266,7 +274,7 @@ class ExpandBrace:
         It will basically crawl to the end or find a valid series.
         """
 
-        result = []  # type: Union[List[str], Iterator[str]]
+        result = []  # type: Iterable[str]
         release = self.set_expanding()
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
         is_empty = True  # Tracks whether the current slot is empty `{slot,slot,slot}`.
