@@ -1,5 +1,10 @@
 # Changes
 
+## 2.2.1
+
+- **FIX**: Remove excessive generator wrappers.
+- **FIX**: Use `AnyStr` for string static types instead of custom alias.
+
 ## 2.2
 
 - **NEW**: Support Python 3.10
