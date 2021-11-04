@@ -20,6 +20,8 @@ theme:
     code: Roboto Mono
   features:
     - navigation.tabs
+    - navigation.top
+    - naviagtion.instant
   pymdownx:
     sponsor: "https://github.com/sponsors/facelessuser"
 
@@ -50,10 +52,6 @@ markdown_extensions:
       preserve_tabs: true
   - pymdownx.highlight:
       extend_pygments_lang:
-        - name: php-inline
-          lang: php
-          options:
-            startinline: true
         - name: pycon3
           lang: pycon
           options:
