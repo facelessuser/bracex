@@ -1,5 +1,10 @@
 # Changes
 
+## 2.3
+
+- **NEW**: Drop Python 3.6 support.
+- **NEW**: Switch to Hatch build backend instead of Setuptools.
+
 ## 2.2.1
 
 - **FIX**: Remove excessive generator wrappers.
