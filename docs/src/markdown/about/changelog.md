@@ -1,5 +1,9 @@
 # Changes
 
+## 2.3.post1
+
+- **CHORE**: Fix issue where tar ball did not include all required files for running tests.
+
 ## 2.3
 
 - **NEW**: Drop Python 3.6 support.
