@@ -49,6 +49,8 @@ include = [
     "/bracex/**/*.py",
     "/bracex/py.typed",
     "/tests/**/*.py",
+    "/tests/**/*.txt",
+    "/tests/**/*.sh",
     "/tools/**/*.py",
     "/.pyspelling.yml",
     "/.coveragerc",
