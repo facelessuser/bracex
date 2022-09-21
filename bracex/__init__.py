@@ -18,10 +18,11 @@ THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABI
 CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 IN THE SOFTWARE.
 """
+from __future__ import annotations
 import itertools
 import math
 import re
-from typing import List, Iterator, Pattern, Optional, Match, Iterable, AnyStr
+from typing import Iterator, Pattern, Optional, Match, Iterable, AnyStr
 from . import __meta__
 
 
@@ -43,7 +44,7 @@ class ExpansionLimitException(Exception):
     """Brace expansion limit exception."""
 
 
-def expand(string: AnyStr, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> List[AnyStr]:
+def expand(string: AnyStr, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> list[AnyStr]:
     """Expand braces."""
 
     return list(iexpand(string, keep_escapes, limit))
@@ -134,7 +135,7 @@ class ExpandBrace:
         self.expanding = False
         self.keep_escapes = keep_escapes
 
-    def update_count_seq(self, count: List[int]) -> None:
+    def update_count_seq(self, count: list[int]) -> None:
         """Update the count from a list after evaluating a brace sequence and assert if count exceeds the max limit."""
 
         self.count -= sum(count)
