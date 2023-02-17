@@ -22,7 +22,7 @@ from __future__ import annotations
 import itertools
 import math
 import re
-from typing import Iterator, Pattern, Optional, Match, Iterable, AnyStr
+from typing import Iterator, Pattern, Match, Iterable, AnyStr
 from . import __meta__
 
 
@@ -80,7 +80,7 @@ class StringIter:
 
         return self.iternext()
 
-    def match(self, pattern: Pattern[str]) -> Optional[Match[str]]:
+    def match(self, pattern: Pattern[str]) -> Match[str] | None:
         """Perform regex match at index."""
 
         m = pattern.match(self._string, self._index)
@@ -194,7 +194,7 @@ class ExpandBrace:
         for x in itertools.product(a, b):
             yield ''.join(x) if isinstance(x, tuple) else x
 
-    def get_literals(self, c: str, i: StringIter, depth: int) -> Optional[Iterator[str]]:
+    def get_literals(self, c: str, i: StringIter, depth: int) -> Iterator[str] | None:
         """
         Get a string literal.
 
@@ -261,7 +261,7 @@ class ExpandBrace:
             self.update_count_seq(seq_count)
         return result
 
-    def get_sequence(self, c: str, i: StringIter, depth: int) -> Optional[Iterator[str]]:
+    def get_sequence(self, c: str, i: StringIter, depth: int) -> Iterator[str] | None:
         """
         Get the sequence.
 
@@ -331,7 +331,7 @@ class ExpandBrace:
             self.release_expanding(release)
             raise
 
-    def get_range(self, i: StringIter) -> Optional[Iterator[str]]:
+    def get_range(self, i: StringIter) -> Iterator[str] | None:
         """
         Check and retrieve range if value is a valid range.
 
@@ -364,7 +364,7 @@ class ExpandBrace:
         for value in values:
             yield "{:0{pad}d}".format(value, pad=padding) if padding else str(value)
 
-    def get_int_range(self, start: str, end: str, increment: Optional[str] = None) -> Iterator[str]:
+    def get_int_range(self, start: str, end: str, increment: str | None = None) -> Iterator[str]:
         """Get an integer range between start and end and increments of increment."""
 
         first, last = int(start), int(end)
@@ -397,7 +397,7 @@ class ExpandBrace:
 
         return self.format_values(r, padding)
 
-    def get_char_range(self, start: str, end: str, increment: Optional[str] = None) -> Iterator[str]:
+    def get_char_range(self, start: str, end: str, increment: str | None = None) -> Iterator[str]:
         """Get a range of alphabetic characters."""
 
         inc = int(increment) if increment else 1
