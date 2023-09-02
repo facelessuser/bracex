@@ -31,7 +31,7 @@ base/
     └── 2
 ```
 
-- **Why Bracex over other solutions?**
+-   **Why Bracex over other solutions?**
 
     Bracex actually follows pretty closely to how Bash processes braces. It is not a 1:1 implementation of how Bash
     handles braces, but generally, it follows very closely. Almost all of the test cases are run through Bash first,
