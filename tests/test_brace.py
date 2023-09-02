@@ -1,4 +1,5 @@
-"""Test braces.
+"""
+Test braces.
 
 Looking for brace test cases, I stumbled on https://github.com/juliangruber/brace-expansion.
 The project contained great tests that mirror Bash 4.3's behavior.  And while this library

@@ -118,8 +118,8 @@ class StringIter:
         try:
             char = self._string[self._index]
             self._index += 1
-        except IndexError:  # pragma: no cover
-            raise StopIteration
+        except IndexError as e:  # pragma: no cover
+            raise StopIteration from e
 
         return char
 
