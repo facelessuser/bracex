@@ -1,5 +1,9 @@
 # Changes
 
+## 2.5
+
+-   **NEW** Add Python 3.13 support.
+
 ## 2.4
 
 -   **NEW**: Formally declare support for Python 3.11 and 3.12.
