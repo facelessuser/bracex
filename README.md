@@ -61,8 +61,6 @@ MIT License
 
 [github-ci-image]: https://github.com/facelessuser/bracex/workflows/build/badge.svg?branch=master&event=push
 [github-ci-link]: https://github.com/facelessuser/bracex/actions?query=workflow%3Abuild+branch%3Amaster
-[discord-image]: https://img.shields.io/discord/678289859768745989?logo=discord&logoColor=aaaaaa&color=mediumpurple&labelColor=333333
-[discord-link]:https://discord.gg/TWs8Tgr
 [codecov-image]: https://img.shields.io/codecov/c/github/facelessuser/bracex/master.svg?logo=codecov&logoColor=aaaaaa&labelColor=333333
 [codecov-link]: https://codecov.io/github/facelessuser/bracex
 [pypi-image]: https://img.shields.io/pypi/v/bracex.svg?logo=pypi&logoColor=aaaaaa&labelColor=333333

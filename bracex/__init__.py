@@ -151,7 +151,7 @@ class ExpandBrace:
 
         if self.max_limit > 0 and self.count > self.max_limit:
             raise ExpansionLimitException(
-                'Brace expansion has exceeded the limit of {:d}'.format(self.max_limit)
+                f'Brace expansion has exceeded the limit of {self.max_limit:d}'
             )
 
     def set_expanding(self) -> bool:
