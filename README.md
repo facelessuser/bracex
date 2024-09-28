@@ -58,7 +58,7 @@ Documentation is found here: https://facelessuser.github.io/bracex/.
 
 MIT License
 
-[github-ci-image]: https://github.com/facelessuser/bracex/workflows/build/badge.svg?branch=master&event=push
+[github-ci-image]: https://github.com/facelessuser/bracex/actions/workflows/build.yml/badge.svg?branch=master&event=push
 [github-ci-link]: https://github.com/facelessuser/bracex/actions?query=workflow%3Abuild+branch%3Amaster
 [codecov-image]: https://img.shields.io/codecov/c/github/facelessuser/bracex/master.svg?logo=codecov&logoColor=aaaaaa&labelColor=333333
 [codecov-link]: https://codecov.io/github/facelessuser/bracex
