@@ -1,5 +1,9 @@
 # Changes
 
+## 2.5.post1
+
+-   **FIX**: Fix PyPI landing page.
+
 ## 2.5
 
 -   **NEW** Add Python 3.13 support.
