@@ -3,7 +3,7 @@
 [![Coverage Status][codecov-image]][codecov-link]
 [![PyPI Version][pypi-image]][pypi-link]
 [![PyPI - Python Version][python-image]][pypi-link]
-![License][license-image-mit]
+[![License][license-image-mit]][license-link]
 # Bracex
 
 Bracex is a brace expanding library (à la Bash) for Python. Brace expanding is used to generate arbitrary strings.
@@ -58,7 +58,7 @@ Documentation is found here: https://facelessuser.github.io/bracex/.
 
 MIT License
 
-[github-ci-image]: https://github.com/facelessuser/bracex/actions/workflows/build.yml/badge.svg?branch=master&event=push
+[github-ci-image]: https://github.com/facelessuser/bracex/actions/workflows/build.yml/badge.svg
 [github-ci-link]: https://github.com/facelessuser/bracex/actions?query=workflow%3Abuild+branch%3Amaster
 [codecov-image]: https://img.shields.io/codecov/c/github/facelessuser/bracex/master.svg?logo=codecov&logoColor=aaaaaa&labelColor=333333
 [codecov-link]: https://codecov.io/github/facelessuser/bracex
@@ -66,5 +66,6 @@ MIT License
 [pypi-link]: https://pypi.python.org/pypi/bracex
 [python-image]: https://img.shields.io/pypi/pyversions/bracex?logo=python&logoColor=aaaaaa&labelColor=333333
 [license-image-mit]: https://img.shields.io/badge/license-MIT-blue.svg?labelColor=333333
+[license-link]: https://github.com/facelessuser/bracex/blob/main/LICENSE.md
 [donate-image]: https://img.shields.io/badge/Donate-PayPal-3fabd1?logo=paypal
 [donate-link]: https://www.paypal.me/facelessuser
