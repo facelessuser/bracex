@@ -1,5 +1,10 @@
 # Changes
 
+## 2.6
+
+-   **NEW**: Drop support for Python 3.8.
+-   **NEW**: Add support for Python 3.14.
+
 ## 2.5.post1
 
 -   **FIX**: Fix PyPI landing page.

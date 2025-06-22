@@ -9,7 +9,7 @@ name = "bracex"
 description = "Bash style brace expander."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 authors = [
     { name = "Isaac Muse", email = "Isaac.Muse@gmail.com" },
 ]
@@ -107,7 +107,7 @@ legacy_tox_ini = """
 isolated_build = true
 skipsdist=true
 envlist=
-    py38,py39,py310,py311,py312,py313,
+    py38,py39,py310,py311,py312,py313,py314,
     lint
 
 [testenv]
