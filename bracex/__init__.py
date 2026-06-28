@@ -194,6 +194,12 @@ class ExpandBrace:
         for x in itertools.product(a, b):
             yield ''.join(x) if isinstance(x, tuple) else x
 
+    def chain(self, *iterables: Iterable[str]) -> Iterator[str]:
+        """Chain iterables."""
+
+        for iterable in iterables:
+            yield from iterable
+
     def get_literals(self, c: str, i: StringIter, depth: int) -> Iterator[str] | None:
         """
         Get a string literal.
@@ -308,7 +314,7 @@ class ExpandBrace:
                 if (c == '}' and (not keep_looking or i.index == 2)):
                     # If there is no comma, we know the sequence is bogus.
                     if is_empty:
-                        result = itertools.chain(result, [''])
+                        result = self.chain(result, [''])
                         if has_comma:
                             self.update_count(1)
                     if not has_comma:
@@ -320,7 +326,7 @@ class ExpandBrace:
                     # Must be the first element in the list.
                     has_comma = True
                     if is_empty:
-                        result = itertools.chain(result, [''])
+                        result = self.chain(result, [''])
                         self.update_count(1)
                     else:
                         is_empty = True
@@ -331,7 +337,7 @@ class ExpandBrace:
                         # completed the top level group. Request more and
                         # append to what we already have for the first slot.
                         if is_empty and not has_comma:
-                            result = itertools.chain(result, [c])
+                            result = self.chain(result, [c])
                         else:
                             result = self.squash(result, [c])
                         value = self.get_literals(next(i), i, depth)
@@ -342,7 +348,7 @@ class ExpandBrace:
                         # Lower level: Try to find group, but give up if cannot acquire.
                         value = self.get_literals(c, i, depth)
                         if value is not None:
-                            result = itertools.chain(result, value)
+                            result = self.chain(result, value)
                             is_empty = False
 
                 c = next(i)
