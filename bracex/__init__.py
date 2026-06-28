@@ -304,7 +304,7 @@ class ExpandBrace:
                 # Bash has some special top level logic. if `}` follows `{` but hasn't matched
                 # a group yet, keep going except when the first 2 bytes are `{}` which gets
                 # completely ignored.
-                keep_looking = depth == 1 and not has_comma  # and i.index not in self.skip_index
+                keep_looking = depth == 1 and not has_comma
                 if (c == '}' and (not keep_looking or i.index == 2)):
                     # If there is no comma, we know the sequence is bogus.
                     if is_empty:
