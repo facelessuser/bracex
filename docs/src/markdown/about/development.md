@@ -19,7 +19,7 @@ Directory             | Description
 --------------------- | -----------
 `docs/src/dictionary` | Contains the spell check wordlist(s) for the project.
 `docs/src/markdown`   | Contains the content for the documentation.
-`soupsieve`           | Contains the source code for the project.
+`bracex`              | Contains the source code for the project.
 `requirements`        | Contains files with lists of dependencies that are required for the project, and required for continuous integration.
 `tests`               | Contains unit test files.
 
@@ -37,8 +37,7 @@ Documents are in Markdown (with some additional syntax provided by extensions) a
 Markdown. If you would like to build and preview the documentation, you must have these packages installed:
 
 -   @Python-Markdown/markdown: the Markdown parser.
--   @mkdocs/mkdocs: the document site generator.
--   @squidfunk/mkdocs-material: a material theme for MkDocs.
+-   @zensical/zensical: the document site generator.
 -   @facelessuser/pymdown-extensions: this Python Markdown extension bundle.
 
 In order to build and preview the documents, just run the command below from the root of the project and you should be
@@ -46,7 +45,7 @@ able to view the documents at `localhost:8000` in your browser. After that, you 
 and have your browser preview update live.
 
 ```
-mkdocs serve
+zensical serve -f zensical.yml
 ```
 
 ## Spell Checking Documents
@@ -65,7 +64,7 @@ run the following command from the root of the project.
 You will need to make sure the documents are built first:
 
 ```
-mkdocs build --clean
+zensical build --clean -f zensical.yml
 ```
 
 And then run the spell checker.

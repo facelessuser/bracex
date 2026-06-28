@@ -133,6 +133,6 @@ passenv= *
 deps=
     -rrequirements/docs.txt
 commands=
-    mkdocs build --clean --verbose --strict
-    pyspelling
+    "{envpython}" -m zensical.main build -f zensical.yml --clean --strict
+    "{envpython}" -m pyspelling
 """
