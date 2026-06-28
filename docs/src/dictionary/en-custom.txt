@@ -5,6 +5,7 @@ Bracex
 Changelog
 GitHub
 Gitter
+KiB
 MERCHANTABILITY
 MkDocs
 NONINFRINGEMENT
@@ -34,4 +35,5 @@ regex
 stdout
 sublicense
 tuple
+uncatchable
 wordlist

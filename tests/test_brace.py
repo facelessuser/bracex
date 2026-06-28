@@ -5,12 +5,14 @@ Looking for brace test cases, I stumbled on https://github.com/juliangruber/brac
 The project contained great tests that mirror Bash 4.3's behavior.  And while this library
 was written independently, we used their test sweet to bring this up to Bash 4.3 standard.
 """
+import sys
 import unittest
 import pytest
 import bracex
 import ast
 import re
-import sys
+import subprocess
+import textwrap
 
 RE_REMOVE = re.compile(r'^\[|\]$')
 BRE_REMOVE = re.compile(br'^\[|\]$')
@@ -418,3 +420,71 @@ class TestExpansionLimit(unittest.TestCase):
         self.assertEqual(len(bracex.expand('{-11..-11..-7}', limit=1)), 1)
         with self.assertRaises(bracex.ExpansionLimitException):
             bracex.expand('{-11..-1..-7}', limit=1)
+
+    def test_empty_start_slot(self):
+        """Test when starting slot is empty."""
+
+        self.assertEqual(len(bracex.expand('a{1,2,}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('a{,1,2}', limit=2)
+
+    def test_empty_end_slot(self):
+        """Test when ending slot is empty."""
+
+        self.assertEqual(len(bracex.expand('a{1,2,}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('a{1,2,}', limit=2)
+
+    def test_empty_middle_slot(self):
+        """Test when middle slot is empty."""
+
+        self.assertEqual(len(bracex.expand('a{1,,2}', limit=3)), 3)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('a{1,,2}', limit=2)
+
+    def test_empty_braces(self):
+        """Test empty braces."""
+
+        self.assertEqual(len(bracex.expand('{}{}{}', limit=1)), 1)
+
+    def test_limit_is_enforced_for_empty_slots(self):
+        """
+        Empty comma slots must be counted.
+
+        An input that yields 5001 results under limit=1000 must raise, not return silently.
+        """
+
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand("-v{" + "," * 5000 + "}", limit=1000)
+
+    def test_empty_group_does_not_zero_a_counted_sibling(self):
+        """An empty group must not multiply a counted range down to zero."""
+
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand("{1..50}{" + "," * 30 + "}", limit=1000)  # 1550 > 1000
+
+    def test_many_commas_do_not_crash_the_interpreter(self):
+        """
+        A deeply nested `itertools.chain` must not overflow the C stack.
+
+        Run in a child interpreter with a 256 KiB thread stack; an uncatchable
+        crash shows up as a negative return code. limit=1 demonstrates that the
+        empty-slot count bypass defeats the limit entirely.
+        """
+
+        code = textwrap.dedent(
+            """
+            import threading, bracex
+            threading.stack_size(256 * 1024)
+            def run():
+                try:
+                    bracex.expand('{' + ',' * 40000 + '}', limit=1)
+                except bracex.ExpansionLimitException:
+                    pass
+            t = threading.Thread(target=run)
+            t.start(); t.join()
+            """
+        )
+
+        cp = subprocess.run([sys.executable, "-c", code], capture_output=True, timeout=60)
+        assert cp.returncode == 0, f"interpreter crashed: returncode={cp.returncode}"

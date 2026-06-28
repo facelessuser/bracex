@@ -309,6 +309,8 @@ class ExpandBrace:
                     # If there is no comma, we know the sequence is bogus.
                     if is_empty:
                         result = itertools.chain(result, [''])
+                        if has_comma:
+                            self.update_count(1)
                     if not has_comma:
                         result = (''.join(['{', literal, '}']) for literal in result)
                     self.release_expanding(release)
@@ -319,6 +321,7 @@ class ExpandBrace:
                     has_comma = True
                     if is_empty:
                         result = itertools.chain(result, [''])
+                        self.update_count(1)
                     else:
                         is_empty = True
 
