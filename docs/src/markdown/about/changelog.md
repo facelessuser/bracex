@@ -1,5 +1,12 @@
 # Changes
 
+## 2.7
+
+-   **NEW**: Drop support for Python 3.9.
+-   **FIX**: Fix issue where the parsing of literal strings was slow.
+-   **FIX**: Fix issue related to tracking the count of expansions when a set was specified with an empty slot.
+-   **FIX**: Fix issue related to chaining expansions.
+
 ## 2.6
 
 -   **NEW**: Drop support for Python 3.8.
