@@ -207,20 +207,26 @@ class ExpandBrace:
 
         count = True
         seq_count = []
+        literal = ''
 
         try:
             while c:
-                value = [c]  # type: Iterable[str]
                 ignore_brace = is_dollar
                 is_dollar = False
 
                 if c == '$':
                     is_dollar = True
+                    literal += c
 
                 elif c == '\\':
-                    value = [self.get_escape(c, i)]
+                    literal += self.get_escape(c, i)
 
                 elif not ignore_brace and c == '{':
+
+                    if literal:
+                        result = self.squash(result, [literal])
+                        literal = ''
+
                     # Try and get the group
                     index = i.index
                     try:
@@ -232,28 +238,39 @@ class ExpandBrace:
                                 seq_count.append(diff)
                             count = False
                             value = seq
+                            result = self.squash(result, value)
+                        else:
+                            literal += c
                     except StopIteration:
                         # Searched to end of string
                         # and still didn't find it.
                         i.rewind(i.index - index)
+                        literal += c
 
                 elif self.is_expanding() and c in (',', '}'):
                     # We are Expanding within a group and found a group delimiter
                     # Return what we gathered before the group delimiters.
+
+                    if literal:
+                        result = self.squash(result, [literal])
+
                     i.rewind(1)
                     if count:
                         self.update_count(1)
                     else:
                         self.update_count_seq(seq_count)
                     return result
-
-                # Squash the current set of literals.
-                result = self.squash(result, value)
+                else:
+                    literal += c
 
                 c = next(i)
         except StopIteration:
             if self.is_expanding():
                 return None
+
+            if literal:
+                # Squash the current set of literals.
+                result = self.squash(result, [literal])
 
         if count:
             self.update_count(1)

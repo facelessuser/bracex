@@ -10,6 +10,7 @@ import pytest
 import bracex
 import ast
 import re
+import sys
 
 RE_REMOVE = re.compile(r'^\[|\]$')
 BRE_REMOVE = re.compile(br'^\[|\]$')
@@ -204,6 +205,21 @@ class TestBraces:
                 print('    ', a, '<==>', b)
                 self.assert_equal(a, b)
                 index += 1
+
+
+class TestMisc(unittest.TestCase):
+    """Test miscellaneous cases."""
+
+    def test_brace_free_string_returns_itself(self):
+        """A string with no brace meta-characters must expand to [itself] regardless of length (no recursion error)."""
+
+        old = sys.getrecursionlimit()
+        sys.setrecursionlimit(1000)
+        try:
+            s = "a" * 4000
+            assert bracex.expand(s) == [s]
+        finally:
+            sys.setrecursionlimit(old)
 
 
 class TestExpansionLimit(unittest.TestCase):
