@@ -55,8 +55,8 @@ class TestBraces:
 
     empty_cases = [
         ['-v{,,,,}', ['-v', '-v', '-v', '-v', '-v']],
-        ['{,,}', ['']],
-        ['', ['']]
+        ['{,,}', []],
+        ['', []]
     ]
 
     negative_incr_cases = [
@@ -222,6 +222,34 @@ class TestMisc(unittest.TestCase):
             assert bracex.expand(s) == [s]
         finally:
             sys.setrecursionlimit(old)
+
+    def test_unbalanced_braces_parse_is_not_exponential(self):
+        """
+        Parsing N unmatched '{' must not invoke the parser 2**(N-1) times.
+
+        A bounded parser is roughly linear in input length.
+        """
+
+        EB = bracex.ExpandBrace
+        original = EB.get_sequence
+        calls = [0]
+
+        def counting(self, *args, **kwargs):
+            calls[0] += 1
+            return original(self, *args, **kwargs)
+
+        EB.get_sequence = counting
+        try:
+            n = 16
+            bracex.expand("{" * n)
+            assert calls[0] < 100 * n, calls[0]  # 2**15 == 32768 on a vulnerable build
+        finally:
+            EB.get_sequence = original
+
+    def test_empty_return(self):
+        """Return at least `[""]` if there are no expansions."""
+
+        self.assertEqual(bracex.expand('{,,,}', return_empty=True), [''])
 
 
 class TestExpansionLimit(unittest.TestCase):
@@ -462,6 +490,13 @@ class TestExpansionLimit(unittest.TestCase):
 
         with self.assertRaises(bracex.ExpansionLimitException):
             bracex.expand("{1..50}{" + "," * 30 + "}", limit=1000)  # 1550 > 1000
+
+    def test_bogus_group_does_not_bypass_limit(self):
+        """64 expansions at limit=63 must raise despite bogus group."""
+
+        self.assertEqual(len(bracex.expand("{12..9}{b}{3..6}{e..b}", limit=64)), 64)
+        with pytest.raises(bracex.ExpansionLimitException):
+            bracex.expand("{12..9}{b}{3..6}{e..b}", limit=63)
 
     def test_many_commas_do_not_crash_the_interpreter(self):
         """

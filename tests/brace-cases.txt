@@ -191,3 +191,10 @@ y{},a}x
 {1..10..-0}
 {a..d..0}
 {a..d..-0}
+# empty slot cases
+{,a,b}
+{a,b,}
+{a,,b}
+# Open braces
+x{
+x{{

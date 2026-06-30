@@ -22,9 +22,8 @@ from __future__ import annotations
 import itertools
 import math
 import re
-from typing import Iterator, Pattern, Match, Iterable, AnyStr
+from typing import Iterator, Pattern, Match, Iterable, AnyStr, Any
 from . import __meta__
-
 
 __all__ = ('expand', 'iexpand')
 
@@ -40,24 +39,41 @@ RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}(-?\d+))?(?=\})')
 DEFAULT_LIMIT = 1000
 
 
+class Sentinel(str):
+    """A sentinel string value."""
+
+
+EMPTY = Sentinel('')
+
+
 class ExpansionLimitException(Exception):
     """Brace expansion limit exception."""
 
 
-def expand(string: AnyStr, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> list[AnyStr]:
+def expand(
+    string: AnyStr,
+    keep_escapes: bool = False,
+    limit: int = DEFAULT_LIMIT,
+    return_empty: bool = False
+) -> list[AnyStr]:
     """Expand braces."""
 
-    return list(iexpand(string, keep_escapes, limit))
+    return list(iexpand(string, keep_escapes, limit, return_empty))
 
 
-def iexpand(string: AnyStr, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> Iterator[AnyStr]:
+def iexpand(
+    string: AnyStr,
+    keep_escapes: bool = False,
+    limit: int = DEFAULT_LIMIT,
+    return_empty: bool = False
+) -> Iterator[AnyStr]:
     """Expand braces and return an iterator."""
 
     if isinstance(string, bytes):
-        for entry in ExpandBrace(keep_escapes, limit).expand(string.decode('latin-1')):
+        for entry in ExpandBrace(keep_escapes, limit, return_empty).expand(string.decode('latin-1')):
             yield entry.encode('latin-1')
     else:
-        for entry in ExpandBrace(keep_escapes, limit).expand(string):
+        for entry in ExpandBrace(keep_escapes, limit, return_empty).expand(string):
             yield entry
 
 
@@ -127,32 +143,27 @@ class StringIter:
 class ExpandBrace:
     """Expand braces like in Bash."""
 
-    def __init__(self, keep_escapes: bool = False, limit: int = DEFAULT_LIMIT) -> None:
+    def __init__(
+        self,
+        keep_escapes: bool = False,
+        limit: int = DEFAULT_LIMIT,
+        return_empty: bool = False
+    ) -> None:
         """Initialize."""
 
         self.max_limit = limit
-        self.count = 0
         self.expanding = False
         self.keep_escapes = keep_escapes
+        self.return_empty = return_empty
 
-    def update_count_seq(self, count: list[int]) -> None:
-        """Update the count from a list after evaluating a brace sequence and assert if count exceeds the max limit."""
+    def account(self, count: int) -> int:
+        """Ensure count is not exceeding the expectation."""
 
-        self.count -= sum(count)
-        prod = 1
-        for c in count:
-            prod *= c
-        self.update_count(prod)
-
-    def update_count(self, count: int) -> None:
-        """Update the count and assert if count exceeds the max limit."""
-
-        self.count += count
-
-        if self.max_limit > 0 and self.count > self.max_limit:
+        if self.max_limit > 0 and count > self.max_limit:
             raise ExpansionLimitException(
                 f'Brace expansion has exceeded the limit of {self.max_limit:d}'
             )
+        return count
 
     def set_expanding(self) -> bool:
         """Set that we are expanding a sequence, and return whether a release is required by the caller."""
@@ -192,15 +203,33 @@ class ExpandBrace:
         """
 
         for x in itertools.product(a, b):
-            yield ''.join(x) if isinstance(x, tuple) else x
+            if all(i is EMPTY for i in x):
+                yield EMPTY
+            else:
+                yield ''.join(x)
 
-    def chain(self, *iterables: Iterable[str]) -> Iterator[str]:
+    def chain(self, *iterables: Any) -> Iterator[str]:
         """Chain iterables."""
 
         for iterable in iterables:
             yield from iterable
 
-    def get_literals(self, c: str, i: StringIter, depth: int) -> Iterator[str] | None:
+    def flatten(self, iterables: Any) -> Iterator[str]:
+        """Flatten out results."""
+
+        for item in iterables:
+            if isinstance(item, list):
+                yield from self.flatten(item)
+                continue
+            yield item
+
+    def get_literals(
+        self,
+        c: str,
+        i: StringIter,
+        depth: int,
+        ignore_end: bool = False
+    ) -> tuple[list[str | Iterator[str]], int]:
         """
         Get a string literal.
 
@@ -208,11 +237,9 @@ class ExpandBrace:
         Also gather chars between braces and commas within a group (is_expanding).
         """
 
-        result = iter([''])
+        result = []  # type: list[str | Iterator[str]]
         is_dollar = False
-
-        count = True
-        seq_count = []
+        count = 1
         literal = ''
 
         try:
@@ -230,61 +257,43 @@ class ExpandBrace:
                 elif not ignore_brace and c == '{':
 
                     if literal:
-                        result = self.squash(result, [literal])
+                        result.append(literal)
                         literal = ''
 
                     # Try and get the group
-                    index = i.index
                     try:
-                        current_count = self.count
-                        seq = self.get_sequence(next(i), i, depth + 1)
-                        if seq:
-                            if self.max_limit > 0:
-                                diff = self.count - current_count
-                                seq_count.append(diff)
-                            count = False
-                            value = seq
-                            result = self.squash(result, value)
-                        else:
-                            literal += c
+                        seq, scount = self.get_sequence(next(i), i, depth + 1)
+                        count *= scount
+                        result.append(seq)
                     except StopIteration:
-                        # Searched to end of string
-                        # and still didn't find it.
-                        i.rewind(i.index - index)
+                        # There are no characters after `{`
+                        # Save `{` and stop parsing.
                         literal += c
+                        raise
 
-                elif self.is_expanding() and c in (',', '}'):
+                elif self.is_expanding() and (c == ',' or (c == '}' and not ignore_end)):
                     # We are Expanding within a group and found a group delimiter
                     # Return what we gathered before the group delimiters.
 
+                    ignore_end = False
+
                     if literal:
-                        result = self.squash(result, [literal])
+                        result.append(literal)
 
                     i.rewind(1)
-                    if count:
-                        self.update_count(1)
-                    else:
-                        self.update_count_seq(seq_count)
-                    return result
+                    break
                 else:
                     literal += c
 
                 c = next(i)
         except StopIteration:
-            if self.is_expanding():
-                return None
-
+            # Ensure we store any remaining literals
             if literal:
-                # Squash the current set of literals.
-                result = self.squash(result, [literal])
+                result.append(literal)
 
-        if count:
-            self.update_count(1)
-        else:
-            self.update_count_seq(seq_count)
-        return result
+        return result, self.account(count)
 
-    def get_sequence(self, c: str, i: StringIter, depth: int) -> Iterator[str] | None:
+    def get_sequence(self, c: str, i: StringIter, depth: int) -> tuple[Iterator[str], int]:
         """
         Get the sequence.
 
@@ -292,18 +301,19 @@ class ExpandBrace:
         It will basically crawl to the end or find a valid series.
         """
 
-        result = iter([])  # type: Iterator[str]
+        result = []  # type: list[str | Iterator[str] | Iterable[str | Iterator[str]]]
         release = self.set_expanding()
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
         is_empty = True  # Tracks whether the current slot is empty `{slot,slot,slot}`.
+        counts = []
 
         # Detect numerical and alphabetic series: `{1..2}` etc.
         i.rewind(1)
-        item = self.get_range(i)
+        item, count = self.get_range(i)
         i.advance(1)
         if item is not None:
             self.release_expanding(release)
-            return item
+            return item, self.account(count)
 
         try:
             while True:
@@ -312,52 +322,79 @@ class ExpandBrace:
                 # completely ignored.
                 keep_looking = depth == 1 and not has_comma
                 if (c == '}' and (not keep_looking or i.index == 2)):
-                    # If there is no comma, we know the sequence is bogus.
-                    if is_empty:
-                        result = self.chain(result, [''])
-                        if has_comma:
-                            self.update_count(1)
-                    if not has_comma:
-                        result = (''.join(['{', literal, '}']) for literal in result)
                     self.release_expanding(release)
-                    return result
+
+                    # Handle empty slot
+                    if is_empty:
+                        result.append(EMPTY)
+                        if has_comma:
+                            counts.append(1)
+
+                    # Sequence is not valid
+                    if not has_comma:
+                        count = 1
+                        temp = iter(['{'])
+                        for r in self.flatten(result):
+                            temp = self.squash(temp, [r] if isinstance(r, str) else r)
+                        temp = self.squash(temp, ['}'])
+                        return temp, self.account(math.prod(counts, start=1))
+
+                    # Format return for a sequence
+                    fin = iter([])  # type: Iterator[str]
+                    start = 0
+                    l = len(result)
+                    for e, x in enumerate(result):
+                        if not isinstance(x, str):
+                            if e != start:
+                                fin = self.chain(fin, result[start:e])
+                            if isinstance(x, list):
+                                temp = iter([EMPTY])
+                                for y in x:
+                                    temp = self.squash(temp, [y] if isinstance(y, str) else y)
+                                fin = self.chain(fin, temp)
+                            else:
+                                fin = self.chain(fin, result[e])
+                            start = e + 1
+                    if start < l:
+                        fin = self.chain(fin, result[start:])
+                    return fin, self.account(sum(counts))
 
                 elif c == ',':
                     # Must be the first element in the list.
                     has_comma = True
                     if is_empty:
-                        result = self.chain(result, [''])
-                        self.update_count(1)
+                        result.append(EMPTY)
+                        counts.append(1)
                     else:
                         is_empty = True
 
                 else:
-                    if c == '}':
-                        # Top level: If we didn't find a comma, we haven't
-                        # completed the top level group. Request more and
-                        # append to what we already have for the first slot.
-                        if is_empty and not has_comma:
-                            result = self.chain(result, [c])
+                    # Lower level: Try to find group, but give up if cannot acquire.
+                    value, lcount = self.get_literals(c, i, depth, keep_looking)
+                    counts.append(lcount)
+                    if value is not None:
+                        if len(value) > 1:
+                            result.append(value)
                         else:
-                            result = self.squash(result, [c])
-                        value = self.get_literals(next(i), i, depth)
-                        if value is not None:
-                            result = self.squash(result, value)
-                            is_empty = False
-                    else:
-                        # Lower level: Try to find group, but give up if cannot acquire.
-                        value = self.get_literals(c, i, depth)
-                        if value is not None:
-                            result = self.chain(result, value)
-                            is_empty = False
+                            result.extend(value)
+                        is_empty = False
 
                 c = next(i)
 
         except StopIteration:
             self.release_expanding(release)
-            raise
 
-    def get_range(self, i: StringIter) -> Iterator[str] | None:
+        # Sequence is not valid
+        temp2 = iter(['{'])  # type: Iterator[str]
+        l = len(result)
+        last_str = False
+        for r in self.flatten(result):
+            is_str = isinstance(r, str)
+            temp2 = self.squash(temp2, [(',' if last_str else '') + r] if is_str else r)
+            last_str = is_str
+        return temp2, self.account(math.prod(counts, start=1))
+
+    def get_range(self, i: StringIter) -> tuple[Iterator[str] | None, int]:
         """
         Check and retrieve range if value is a valid range.
 
@@ -373,8 +410,6 @@ class ExpandBrace:
             m = i.match(RE_CHR_ITER)
             if m:
                 return self.get_char_range(*m.groups())
-        except ExpansionLimitException:
-            raise
         except Exception:  # pragma: no cover
             # TODO: We really should never fail here,
             # but if we do, assume the sequence range
@@ -382,7 +417,7 @@ class ExpandBrace:
             # be removed in the future with more testing.
             pass
 
-        return None
+        return None, 0
 
     def format_values(self, values: Iterable[int], padding: int) -> Iterator[str]:
         """Get padding adjusting for negative values."""
@@ -390,7 +425,7 @@ class ExpandBrace:
         for value in values:
             yield "{:0{pad}d}".format(value, pad=padding) if padding else str(value)
 
-    def get_int_range(self, start: str, end: str, increment: str | None = None) -> Iterator[str]:
+    def get_int_range(self, start: str, end: str, increment: str | None = None) -> tuple[Iterator[str], int]:
         """Get an integer range between start and end and increments of increment."""
 
         first, last = int(start), int(end)
@@ -415,15 +450,15 @@ class ExpandBrace:
             padding = 0
 
         if first < last:
-            self.update_count(math.ceil(abs(((last + 1) - first) / inc)))
+            count = math.ceil(abs(((last + 1) - first) / inc))
             r = range(first, last + 1, -inc if inc < 0 else inc)
         else:
-            self.update_count(math.ceil(abs(((first + 1) - last) / inc)))
+            count = math.ceil(abs(((first + 1) - last) / inc))
             r = range(first, last - 1, inc if inc < 0 else -inc)
 
-        return self.format_values(r, padding)
+        return self.format_values(r, padding), count
 
-    def get_char_range(self, start: str, end: str, increment: str | None = None) -> Iterator[str]:
+    def get_char_range(self, start: str, end: str, increment: str | None = None) -> tuple[Iterator[str], int]:
         """Get a range of alphabetic characters."""
 
         inc = int(increment) if increment else 1
@@ -442,35 +477,34 @@ class ExpandBrace:
         last = alpha.index(end)
 
         if first < last:
-            self.update_count(math.ceil(((last + 1) - first) / inc))
-            return itertools.islice(alpha, first, last + 1, inc)
+            count = math.ceil(((last + 1) - first) / inc)
+            return itertools.islice(alpha, first, last + 1, inc), count
+        count = math.ceil(((first + 1) - last) / inc)
+        return itertools.islice(alpha, last, first + 1, inc), count
 
-        else:
-            self.update_count(math.ceil(((first + 1) - last) / inc))
-            return itertools.islice(alpha, last, first + 1, inc)
+    def expand_str(self, string: str) -> Iterator[str]:
+        """Expand the string."""
+
+        i = StringIter(string)
+        values, _ = self.get_literals(next(i), i, 0)
+
+        # Squash the nested list by calculating the combinations
+        results = iter([EMPTY])  # type: Iterator[str]
+        for v in values:
+            results = self.squash(results, [v] if isinstance(v, str) else v)
+        return results
 
     def expand(self, string: str) -> Iterator[str]:
         """Expand."""
 
         self.expanding = False
-        empties = []
         found_literal = False
         if string:
-            i = StringIter(string)
-            value = self.get_literals(next(i), i, 0)
-            if value is not None:
-                for x in value:
-                    # We don't want to return trailing empty strings.
-                    # Store empty strings and output only when followed by a literal.
-                    if not x:
-                        empties.append(x)
-                        continue
-                    found_literal = True
-                    while empties:
-                        yield empties.pop(0)
-                    yield x
-        empties = []
+            for x in self.expand_str(string):
+                if x is EMPTY:
+                    continue
+                found_literal = True
+                yield x
 
-        # We found no literals so return an empty string
-        if not found_literal:
+        if not found_literal and self.return_empty:
             yield ""

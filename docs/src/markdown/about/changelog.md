@@ -1,5 +1,13 @@
 # Changes
 
+## 3.0
+
+-   **BREAK**: If there are no expansions, `bracex` will not return an empty string by default in the list. This matches
+    Bash. To get the old behavior, enable the new `return_empty` parameter to always return at least an empty string if
+    expansion yields no expansions.
+-   **FIX**: To better match Bash, empty expansions are not returned as empty strings.
+-   **FIX**: No longer backtrack if a sequence is evaluated and is deemed to be invalid.
+
 ## 2.7
 
 -   **NEW**: Drop support for Python 3.9.
