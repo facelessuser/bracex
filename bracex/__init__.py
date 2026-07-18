@@ -477,10 +477,21 @@ class ExpandBrace:
         last = alpha.index(end)
 
         if first < last:
-            count = math.ceil(((last + 1) - first) / inc)
-            return itertools.islice(alpha, first, last + 1, inc), count
-        count = math.ceil(((first + 1) - last) / inc)
-        return itertools.islice(alpha, last, first + 1, inc), count
+            start_i, stop_i = first, last + 1
+        else:
+            start_i, stop_i = last, first + 1
+
+        span = stop_i - start_i
+        try:
+            count = math.ceil(span / inc)
+        except OverflowError:
+            # Step too large for float division; only the first character is in range.
+            return iter([alpha[start_i]]), 1
+
+        if inc >= span:
+            return iter([alpha[start_i]]), 1
+
+        return itertools.islice(alpha, start_i, stop_i, inc), count
 
     def expand_str(self, string: str) -> Iterator[str]:
         """Expand the string."""

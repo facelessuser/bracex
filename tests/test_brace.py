@@ -93,7 +93,11 @@ class TestBraces:
         ['1{a..b}2{b..c}3', ['1a2b3', '1a2c3', '1b2b3', '1b2c3']],
         ['{a..b}{b..c}', ['ab', 'ac', 'bb', 'bc']],
         ['{a..k..2}', ['a', 'c', 'e', 'g', 'i', 'k']],
-        ['{b..k..2}', ['b', 'd', 'f', 'h', 'j']]
+        ['{b..k..2}', ['b', 'd', 'f', 'h', 'j']],
+        # Huge steps must expand to the start char (like int ranges), not corrupt.
+        ['{a..z..' + ('9' * 19) + '}', ['a']],
+        ['{z..a..' + ('9' * 19) + '}', ['z']],
+        ['{a..c..' + ('9' * 400) + '}', ['a']],
     ]
 
     error_cases = [
