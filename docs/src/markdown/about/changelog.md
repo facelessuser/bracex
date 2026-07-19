@@ -1,5 +1,9 @@
 # Changes
 
+## 3.0.1
+
+-   **FIX**: Fix case where character or number ranges could throw an exception (@santhreal).
+
 ## 3.0
 
 -   **BREAK**: If there are no expansions, `bracex` will not return an empty string by default in the list. This matches

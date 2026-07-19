@@ -50,6 +50,12 @@ class ExpansionLimitException(Exception):
     """Brace expansion limit exception."""
 
 
+def truncate_digits(value: str, limit: int = 19) -> str:
+    """Truncate a string of digits."""
+
+    return value[:limit + (1 if value and value[0] == '-' else 0)]
+
+
 def expand(
     string: AnyStr,
     keep_escapes: bool = False,
@@ -428,6 +434,12 @@ class ExpandBrace:
     def get_int_range(self, start: str, end: str, increment: str | None = None) -> tuple[Iterator[str], int]:
         """Get an integer range between start and end and increments of increment."""
 
+        # Truncate really big numbers to 19 digits
+        start = truncate_digits(start)
+        end = truncate_digits(end)
+        if increment is not None:
+            increment = truncate_digits(increment)
+
         first, last = int(start), int(end)
         inc = int(increment) if increment is not None else 1
         max_length = max(len(start), len(end))
@@ -450,16 +462,24 @@ class ExpandBrace:
             padding = 0
 
         if first < last:
-            count = math.ceil(abs(((last + 1) - first) / inc))
+            span = abs((last + 1) - first)
+            ainc = abs(inc)
+            count = math.ceil(span / ainc) if ainc <= span else 1
             r = range(first, last + 1, -inc if inc < 0 else inc)
         else:
-            count = math.ceil(abs(((first + 1) - last) / inc))
+            span = abs((first + 1) - last)
+            ainc = abs(inc)
+            count = math.ceil(span / ainc) if ainc <= span else 1
             r = range(first, last - 1, inc if inc < 0 else -inc)
 
         return self.format_values(r, padding), count
 
     def get_char_range(self, start: str, end: str, increment: str | None = None) -> tuple[Iterator[str], int]:
         """Get a range of alphabetic characters."""
+
+        # Truncate really big numbers to 19 digits
+        if increment is not None:
+            increment = truncate_digits(increment)
 
         inc = int(increment) if increment else 1
         if inc < 0:
@@ -477,10 +497,12 @@ class ExpandBrace:
         last = alpha.index(end)
 
         if first < last:
-            count = math.ceil(((last + 1) - first) / inc)
-            return itertools.islice(alpha, first, last + 1, inc), count
-        count = math.ceil(((first + 1) - last) / inc)
-        return itertools.islice(alpha, last, first + 1, inc), count
+            span = (last + 1) - first
+            count = math.ceil(span / inc) if abs(inc) <= abs(span) else 1
+            return (alpha[r] for r in range(first, last + 1, -inc if inc < 0 else inc)), count
+        span = (first + 1) - last
+        count = math.ceil(span / inc) if abs(inc) <= abs(span) else 1
+        return (alpha[r] for r in range(first, last - 1, inc if inc < 0 else -inc)), count
 
     def expand_str(self, string: str) -> Iterator[str]:
         """Expand the string."""
