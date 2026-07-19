@@ -33,10 +33,22 @@ __version_info__ = __meta__.__version_info__
 _alpha = [chr(x) if x != 0x5c else '' for x in range(ord('A'), ord('z') + 1)]
 _nalpha = list(reversed(_alpha))
 
-RE_INT_ITER = re.compile(r'(-?\d+)\.{2}(-?\d+)(?:\.{2}(-?\d+))?(?=\})')
-RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}(-?\d+))?(?=\})')
+RE_INT_ITER = re.compile(r'(-?((?:0(?=\d))*)\d+)\.{2}(-?((?:0(?=\d))*)\d+)(?:\.{2}-?(((?:0(?=\d))*)\d+))?(?=\})')
+RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}-?(((?:0(?=\d))*)\d+))?(?=\})')
 
 DEFAULT_LIMIT = 1000
+
+MAX_NEG_INT_64 = -2 ** 63
+MAX_INT_64 = abs(MAX_NEG_INT_64 + 1)
+
+
+def int64(string: str) -> int:
+    """Convert string to 64-bit integer."""
+
+    integer = int(string)
+    if integer < MAX_NEG_INT_64 or integer > MAX_INT_64:
+        raise ValueError('Value is larger than the signed 64-bit storage type')
+    return integer
 
 
 class Sentinel(str):
@@ -48,12 +60,6 @@ EMPTY = Sentinel('')
 
 class ExpansionLimitException(Exception):
     """Brace expansion limit exception."""
-
-
-def truncate_digits(value: str, limit: int = 19) -> str:
-    """Truncate a string of digits."""
-
-    return value[:limit + (1 if value and value[0] == '-' else 0)]
 
 
 def expand(
@@ -408,19 +414,17 @@ class ExpandBrace:
         We look for `{1..2[..inc]}` or `{a..z[..inc]}` (negative numbers are fine).
         """
 
+        index = i.index
         try:
             m = i.match(RE_INT_ITER)
             if m:
-                return self.get_int_range(*m.groups())
+                return self.get_int_range(m)
 
             m = i.match(RE_CHR_ITER)
             if m:
-                return self.get_char_range(*m.groups())
-        except Exception:  # pragma: no cover
-            # TODO: We really should never fail here,
-            # but if we do, assume the sequence range
-            # was invalid. This catch can probably
-            # be removed in the future with more testing.
+                return self.get_char_range(m)
+        except Exception:
+            i.rewind(i.index - index)
             pass
 
         return None, 0
@@ -431,64 +435,59 @@ class ExpandBrace:
         for value in values:
             yield "{:0{pad}d}".format(value, pad=padding) if padding else str(value)
 
-    def get_int_range(self, start: str, end: str, increment: str | None = None) -> tuple[Iterator[str], int]:
+    def get_int_range(self, m: re.Match[str]) -> tuple[Iterator[str], int]:
         """Get an integer range between start and end and increments of increment."""
 
-        # Truncate really big numbers to 19 digits
-        start = truncate_digits(start)
-        end = truncate_digits(end)
-        if increment is not None:
-            increment = truncate_digits(increment)
+        # Capture zero padding extent and capture numerical values without padding and limited to 19 digits.
+        # 64-bit integers are no longer than 19 digits.
+        spad = m.start(2), m.end(2)
+        off = m.start(1)
+        start = m.group(1)[:spad[0] - off] + m.group(1)[spad[1] - off:spad[1] - off + 19]
 
-        first, last = int(start), int(end)
-        inc = int(increment) if increment is not None else 1
-        max_length = max(len(start), len(end))
+        epad = m.start(4), m.end(4)
+        off = m.start(3)
+        end = m.group(3)[:epad[0] - off] + m.group(3)[epad[1] - off :epad[1] - off  + 19]
 
-        # Zero doesn't make sense as an incrementer
-        # but like bash, just assume one
-        if inc == 0:
-            inc = 1
+        ipad = m.start(6), m.end(6)
+        off = m.start(5)
+        increment = m.group(5)[0:ipad[0] - off] + m.group(5)[ipad[1] - off:ipad[1] - off + 19] if m.group(5) else '1'
 
-        if start[0] == '-':
-            start = start[1:]
+        # Ensure values are within 64 bit range.
+        first = int64(start)
+        last = int64(end)
+        inc = max(1, int64(increment))
 
-        if end[0] == '-':
-            end = end[1:]
-
-        if (len(start) > 1 and start[0] == '0') or (len(end) > 1 and end[0] == '0'):
-            padding = max_length
-
-        else:
-            padding = 0
+        spad_len = spad[1] - spad[0]
+        epad_len = epad[1] - epad[0]
+        padding = max(spad_len + len(start), epad_len + len(end)) if spad_len or epad_len else 0
 
         if first < last:
-            span = abs((last + 1) - first)
+            span = abs(last - first + 1)
             ainc = abs(inc)
             count = math.ceil(span / ainc) if ainc <= span else 1
-            r = range(first, last + 1, -inc if inc < 0 else inc)
+            r = range(first, last + 1, inc)
         else:
-            span = abs((first + 1) - last)
+            span = abs(first - last + 1)
             ainc = abs(inc)
             count = math.ceil(span / ainc) if ainc <= span else 1
-            r = range(first, last - 1, inc if inc < 0 else -inc)
+            r = range(first, last - 1, -inc)
 
         return self.format_values(r, padding), count
 
-    def get_char_range(self, start: str, end: str, increment: str | None = None) -> tuple[Iterator[str], int]:
+    def get_char_range(self, m: re.Match[str]) -> tuple[Iterator[str], int]:
         """Get a range of alphabetic characters."""
 
-        # Truncate really big numbers to 19 digits
-        if increment is not None:
-            increment = truncate_digits(increment)
+        start = m.group(1)
+        end = m.group(2)
 
-        inc = int(increment) if increment else 1
-        if inc < 0:
-            inc = -inc
+        # Capture zero padding extent and capture numerical values without padding and limited to 19 digits.
+        # 64-bit integers are no longer than 19 digits.
+        ipad = m.start(4), m.end(4)
+        off = m.start(3)
+        increment = m.group(3)[0:ipad[0] - off] + m.group(3)[ipad[1] - off:ipad[1] - off + 19] if m.group(3) else '1'
 
-        # Zero doesn't make sense as an incrementer
-        # but like bash, just assume one
-        if inc == 0:
-            inc = 1
+        # Ensure values are within 64 bit range.
+        inc = max(1, int64(increment))
 
         inverse = start > end
         alpha = _nalpha if inverse else _alpha
@@ -497,12 +496,14 @@ class ExpandBrace:
         last = alpha.index(end)
 
         if first < last:
-            span = (last + 1) - first
-            count = math.ceil(span / inc) if abs(inc) <= abs(span) else 1
-            return (alpha[r] for r in range(first, last + 1, -inc if inc < 0 else inc)), count
-        span = (first + 1) - last
-        count = math.ceil(span / inc) if abs(inc) <= abs(span) else 1
-        return (alpha[r] for r in range(first, last - 1, inc if inc < 0 else -inc)), count
+            span = last - first + 1
+            count = math.ceil(span / inc) if inc <= abs(span) else 1
+            r = range(first, last + 1, inc)
+        else:
+            span = first - last + 1
+            count = math.ceil(span / inc) if inc <= abs(span) else 1
+            r = range(first, last - 1, -inc)
+        return (alpha[i] for i in r), count
 
     def expand_str(self, string: str) -> Iterator[str]:
         """Expand the string."""
