@@ -118,7 +118,7 @@ def expand(string, keep_escapes=False, limit=1000):
 ```
 
 `expand` accepts a string and returns a list of expanded strings. It expansions are all empty, an empty array will be
-returned. If it is desired to always at least have an empty string, `return_empty` can be be enabled to always return
+returned. If it is desired to always at least have an empty string, `return_empty` can be enabled to always return
 at least `[""]`.
 
 > [!note] 3.0 Change in Behavior
