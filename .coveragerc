@@ -1,7 +1,0 @@
-[run]
-omit=
-    bracex/pep562.py
-
-[report]
-omit=
-    bracex/pep562.py
