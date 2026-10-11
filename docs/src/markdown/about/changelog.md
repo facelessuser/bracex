@@ -1,5 +1,9 @@
 # Changes
 
+## 3.1
+
+-   **NEW**: Add support for Python 3.15.
+
 ## 3.0.1
 
 -   **FIX**: Fix case where character or number ranges could throw an exception (@santhreal).

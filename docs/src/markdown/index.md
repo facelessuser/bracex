@@ -12,9 +12,8 @@ ad bd cd
 
 Bracex adds this ability to Python:
 
-```pycon
->>> bracex.expand(r'file-{1,2,3}.txt')
-['file-1.txt', 'file-2.txt', 'file-3.txt']
+```py play
+bracex.expand(r'file-{1,2,3}.txt')
 ```
 
 and as a command:
@@ -43,64 +42,54 @@ base/
 
 More Examples:
 
-```pycon
->>> bracex.expand(r'-v{,,}')
-['-v', '-v', '-v']
+```py play
+bracex.expand(r'-v{,,}')
 ```
 
 Nested braces:
 
-```pycon
->>> bracex.expand(r'file-{{a,b},c}d.txt')
-['file-ad.txt', 'file-bd.txt', 'file-cd.txt']
+```py play
+bracex.expand(r'file-{{a,b},c}d.txt')
 ```
 
 Numerical sequences:
 
-```pycon
->>> bracex.expand(r'file{0..3}.txt')
-['file0.txt', 'file1.txt', 'file2.txt', 'file3.txt']
+```py play
+bracex.expand(r'file{0..3}.txt')
 ```
 
-```pycon
->>> bracex.expand(r'file{0..6..2}.txt')
-['file0.txt', 'file2.txt', 'file4.txt', 'file6.txt']
+```py play
+bracex.expand(r'file{0..6..2}.txt')
 ```
 
-```pycon
->>> bracex.expand(r'file{00..10..5}.jpg')
-['file00.jpg', 'file05.jpg', 'file10.jpg']
+```py play
+bracex.expand(r'file{00..10..5}.jpg')
 ```
 
 Alphabetic sequences:
 
-```pycon
->>> bracex.expand(r'file{A..D}.txt')
-['fileA.txt', 'fileB.txt', 'fileC.txt', 'fileD.txt']
+```py play
+bracex.expand(r'file{A..D}.txt')
 ```
 
-```pycon
->>> bracex.expand(r'file{A..G..2}.txt')
-['fileA.txt', 'fileC.txt', 'fileE.txt', 'fileG.txt']
+```py play
+bracex.expand(r'file{A..G..2}.txt')
 ```
 
 Allows escaping:
 
-```pycon
->>> bracex.expand(r'file\{00..10..5}.jpg')
-['file{00..10..5}.jpg']
+```py play
+bracex.expand(r'file\{00..10..5}.jpg')
 ```
 
-```pycon
->>> bracex.expand(r'file\{00..10..5}.jpg', keep_escapes=True)
-['file\\{00..10..5}.jpg']
+```py play
+bracex.expand(r'file\{00..10..5}.jpg', keep_escapes=True)
 ```
 
 Bracex will **not** expand braces in the form of `${...}`:
 
-```pycon
->>> bracex.expand(r'file${a,b,c}.jpg')
-['file${a,b,c}.jpg']
+```py play
+bracex.expand(r'file${a,b,c}.jpg')
 ```
 
 ## Install

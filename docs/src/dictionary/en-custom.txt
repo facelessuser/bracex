@@ -3,6 +3,7 @@ Accessors
 Backport
 Bracex
 Changelog
+Formatter
 GitHub
 Gitter
 KiB
@@ -23,6 +24,7 @@ accessor
 backend
 deprecations
 expander
+formatter
 globbing
 incrementer
 iterables
@@ -37,4 +39,5 @@ stdout
 sublicense
 tuple
 uncatchable
+validator
 wordlist
