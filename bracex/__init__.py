@@ -464,12 +464,12 @@ class ExpandBrace:
         if first < last:
             span = abs(last - first + 1)
             ainc = abs(inc)
-            count = math.ceil(span / ainc) if ainc <= span else 1
+            count = (span + ainc - 1) // ainc if ainc <= span else 1
             r = range(first, last + 1, inc)
         else:
             span = abs(first - last + 1)
             ainc = abs(inc)
-            count = math.ceil(span / ainc) if ainc <= span else 1
+            count = (span + ainc - 1) // ainc if ainc <= span else 1
             r = range(first, last - 1, -inc)
 
         return self.format_values(r, padding), count
