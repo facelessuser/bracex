@@ -127,10 +127,7 @@ dependencies = [
     "pymdown_lexers @ git+https://github.com/facelessuser/pymdown-lexers.git",
     "pyspelling",
     "build",
-    "python-minifier",
-    "beautifulsoup4",
-    "lxml",
-    "html5lib"
+    "python-minifier"
 ]
 
 [[tool.hatch.envs.dev.matrix]]
