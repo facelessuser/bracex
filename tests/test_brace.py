@@ -379,6 +379,34 @@ class TestExpansionLimit(unittest.TestCase):
         with self.assertRaises(bracex.ExpansionLimitException):
             bracex.expand('{11..1}', limit=10)
 
+    def test_large_integer_range_limit_boundaries(self):
+        """Count large integer ranges exactly at the expansion limit."""
+
+        limit = 1000
+        step = 2**54
+        ranges = (
+            (-(2**63), 1),
+            (2**63 - 1, -1),
+        )
+
+        for start, direction in ranges:
+            with self.subTest(start=start):
+                at_limit_end = start + direction * (limit - 1) * step
+                over_limit_end = start + direction * limit * step
+                at_limit = f'{{{start}..{at_limit_end}..{step}}}'
+                over_limit = f'{{{start}..{over_limit_end}..{step}}}'
+
+                results = bracex.expand(at_limit, limit=limit)
+                self.assertEqual(len(results), limit)
+                self.assertEqual(results[0], str(start))
+                self.assertEqual(results[-1], str(at_limit_end))
+
+                with self.assertRaises(bracex.ExpansionLimitException):
+                    bracex.expand(over_limit, limit=limit)
+
+                self.assertEqual(len(bracex.expand(over_limit, limit=limit + 1)), limit + 1)
+                self.assertEqual(len(bracex.expand(over_limit, limit=0)), limit + 1)
+
     def test_expansion_num_negative_limt_expand(self):
         """Test expansion numeric negative limit with `expand`."""
 
