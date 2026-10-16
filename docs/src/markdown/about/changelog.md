@@ -1,5 +1,9 @@
 # Changes
 
+## 3.1.1
+
+-   **NEW**: Fix some division that could cause 1 off issues with limit checking.
+
 ## 3.1
 
 -   **NEW**: Add support for Python 3.15.
