@@ -178,6 +178,47 @@ class TestBraces:
 
         self.eval_brace_cases(case)
 
+    @pytest.mark.parametrize("pattern", [
+        '{10000000000000000000..1000000000000000001}',
+        '{1000000000000000000..10000000000000000000}',
+        '{-10000000000000000000..-1000000000000000001}',
+        '{-1000000000000000000..-10000000000000000000}',
+        '{10000000000000000000..10000000000000000001}',
+        '{100000000000000000000..1000000000000000001}',
+        '{0010000000000000000000..1000000000000000001}',
+        '{1000000000000000000..0010000000000000000000}',
+        '{1..3..10000000000000000000}',
+        '{3..1..-10000000000000000000}',
+        '{1..3..0010000000000000000000}',
+        '{a..c..10000000000000000000}',
+        '{c..a..-10000000000000000000}',
+        '{a..c..0010000000000000000000}'
+    ])
+    def test_oversized_range_values(self, pattern):
+        """Preserve ranges whose significant digits exceed the signed 64-bit range."""
+
+        assert bracex.expand(pattern) == [pattern]
+        assert bracex.expand(pattern.encode('ascii')) == [pattern.encode('ascii')]
+        assert bracex.expand('{' + pattern + ',tail}') == [pattern, 'tail']
+
+    @pytest.mark.parametrize("pattern, expected", [
+        ('{000000000000000000001..000000000000000000003}', [
+            '000000000000000000001', '000000000000000000002', '000000000000000000003'
+        ]),
+        ('{-000000000000000000003..-000000000000000000001}', [
+            '-000000000000000000003', '-000000000000000000002', '-000000000000000000001'
+        ]),
+        ('{1..3..000000000000000000002}', ['1', '3']),
+        ('{3..1..-000000000000000000002}', ['3', '1']),
+        ('{a..c..000000000000000000002}', ['a', 'c']),
+        ('{c..a..-000000000000000000002}', ['c', 'a'])
+    ])
+    def test_range_values_with_long_zero_padding(self, pattern, expected):
+        """Accept long zero padding when the numeric value is within the signed 64-bit range."""
+
+        assert bracex.expand(pattern) == expected
+        assert bracex.expand(pattern.encode('ascii')) == [value.encode('ascii') for value in expected]
+
     @pytest.mark.parametrize("case", get_bash_cases())
     def test_bash_cases(self, case):
         """Test bash cases."""
