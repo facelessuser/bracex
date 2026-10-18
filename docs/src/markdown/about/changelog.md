@@ -2,7 +2,8 @@
 
 ## 3.1.1
 
--   **NEW**: Fix some division that could cause 1 off issues with limit checking.
+-   **FIX**: Fix some division that could cause 1 off issues with limit checking.
+-   **FIX**: Fix issues related to large range numbers and truncation when compared to Bash (@Rexyysilent).
 
 ## 3.1
 

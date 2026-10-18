@@ -438,19 +438,19 @@ class ExpandBrace:
     def get_int_range(self, m: re.Match[str]) -> tuple[Iterator[str], int]:
         """Get an integer range between start and end and increments of increment."""
 
-        # Capture zero padding extent and capture numerical values without padding and limited to 19 digits.
-        # 64-bit integers are no longer than 19 digits.
+        # Capture zero padding and at most 20 significant digits. The extra digit ensures
+        # values longer than a 64-bit integer are rejected instead of silently truncated.
         spad = m.start(2), m.end(2)
         off = m.start(1)
-        start = m.group(1)[:spad[0] - off] + m.group(1)[spad[1] - off:spad[1] - off + 19]
+        start = m.group(1)[:spad[0] - off] + m.group(1)[spad[1] - off:spad[1] - off + 20]
 
         epad = m.start(4), m.end(4)
         off = m.start(3)
-        end = m.group(3)[:epad[0] - off] + m.group(3)[epad[1] - off :epad[1] - off  + 19]
+        end = m.group(3)[:epad[0] - off] + m.group(3)[epad[1] - off :epad[1] - off  + 20]
 
         ipad = m.start(6), m.end(6)
         off = m.start(5)
-        increment = m.group(5)[0:ipad[0] - off] + m.group(5)[ipad[1] - off:ipad[1] - off + 19] if m.group(5) else '1'
+        increment = m.group(5)[0:ipad[0] - off] + m.group(5)[ipad[1] - off:ipad[1] - off + 20] if m.group(5) else '1'
 
         # Ensure values are within 64 bit range.
         first = int64(start)
@@ -484,7 +484,7 @@ class ExpandBrace:
         # 64-bit integers are no longer than 19 digits.
         ipad = m.start(4), m.end(4)
         off = m.start(3)
-        increment = m.group(3)[0:ipad[0] - off] + m.group(3)[ipad[1] - off:ipad[1] - off + 19] if m.group(3) else '1'
+        increment = m.group(3)[0:ipad[0] - off] + m.group(3)[ipad[1] - off:ipad[1] - off + 20] if m.group(3) else '1'
 
         # Ensure values are within 64 bit range.
         inc = max(1, int64(increment))
