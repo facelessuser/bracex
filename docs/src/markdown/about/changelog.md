@@ -1,7 +1,8 @@
 # Changes
 
-## 3.1.1
+## 3.2
 
+-   **NEW**: Drop Python 3.10 support.
 -   **FIX**: Fix some division that could cause 1 off issues with limit checking.
 -   **FIX**: Fix issues related to large range numbers and truncation when compared to Bash (@Rexyysilent).
 
