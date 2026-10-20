@@ -396,14 +396,18 @@ class ExpandBrace:
         except StopIteration:
             self.release_expanding(release)
 
+        # Handle empty slot
+        if has_comma and is_empty:
+            result.append(EMPTY)
+
         # Sequence is not valid
         temp2 = iter(['{'])  # type: Iterator[str]
         l = len(result)
-        last_str = False
-        for r in self.flatten(result):
-            is_str = isinstance(r, str)
-            temp2 = self.squash(temp2, [(',' if last_str else '') + r] if is_str else r)
-            last_str = is_str
+        for e, slot in enumerate(result):
+            member = iter([',' if e else ''])  # type: Iterator[str]
+            for r in self.flatten([slot]):
+                member = self.squash(member, [r] if isinstance(r, str) else r)
+            temp2 = self.squash(temp2, member)
         return temp2, self.account(math.prod(counts, start=1))
 
     def get_range(self, i: StringIter) -> tuple[Iterator[str] | None, int]:
