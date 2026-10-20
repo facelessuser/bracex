@@ -5,6 +5,7 @@
 -   **NEW**: Drop Python 3.10 support.
 -   **FIX**: Fix some division that could cause 1 off issues with limit checking.
 -   **FIX**: Fix issues related to large range numbers and truncation when compared to Bash (@Rexyysilent).
+-   **FIX**: Fix commas dropped or added when rebuilding invalid brace groups.
 
 ## 3.1
 
