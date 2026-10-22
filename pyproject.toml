@@ -40,7 +40,7 @@ include = [
     "/docs/src/markdown/**/*.md",
     "/docs/src/markdown/**/*.gif",
     "/docs/src/markdown/**/*.png",
-    "/docs/src/markdown/dictionary/*.txt",
+    "/docs/src/dictionary/*.txt",
     "/docs/theme/**/*.css",
     "/docs/theme/**/*.js",
     "/docs/theme/**/*.html",
@@ -53,7 +53,7 @@ include = [
     "/tools/**/*.py",
     "/.pyspelling.yml",
     "/.coveragerc",
-    "/mkdocs.yml"
+    "/zensical.yml"
 ]
 
 [tool.mypy]
