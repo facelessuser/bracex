@@ -1,5 +1,9 @@
 # Changes
 
+## 3.2.1
+
+-   **FIX**: Fix `${...}` inside a brace group ending the group early.
+
 ## 3.2
 
 -   **NEW**: Drop Python 3.10 support.
