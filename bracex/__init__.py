@@ -251,6 +251,7 @@ class ExpandBrace:
 
         result = []  # type: list[str | Iterator[str]]
         is_dollar = False
+        dollar_depth = 0
         count = 1
         literal = ''
 
@@ -266,7 +267,11 @@ class ExpandBrace:
                 elif c == '\\':
                     literal += self.get_escape(c, i)
 
-                elif not ignore_brace and c == '{':
+                elif (ignore_brace and c == '{') or (dollar_depth and c == '}'):
+                    literal += c
+                    dollar_depth += 1 if c == '{' else -1
+
+                elif c == '{':
 
                     if literal:
                         result.append(literal)
@@ -283,7 +288,7 @@ class ExpandBrace:
                         literal += c
                         raise
 
-                elif self.is_expanding() and (c == ',' or (c == '}' and not ignore_end)):
+                elif self.is_expanding() and not dollar_depth and (c == ',' or (c == '}' and not ignore_end)):
                     # We are Expanding within a group and found a group delimiter
                     # Return what we gathered before the group delimiters.
 
