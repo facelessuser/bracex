@@ -289,3 +289,9 @@ a{b},
 {a,b{c,d}
 {a,b{
 {2{
+# A top level `..` that is not followed by `}` lets the next `}` end the group
+{1..a},b}
+{a...},c}
+a{1..a},b}c
+{1..a},{b,c}}
+{1..},b}
