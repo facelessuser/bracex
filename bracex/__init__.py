@@ -35,6 +35,7 @@ _nalpha = list(reversed(_alpha))
 
 RE_INT_ITER = re.compile(r'(-?((?:0(?=\d))*)\d+)\.{2}(-?((?:0(?=\d))*)\d+)(?:\.{2}-?(((?:0(?=\d))*)\d+))?(?=\})')
 RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}-?(((?:0(?=\d))*)\d+))?(?=\})')
+RE_SEQ_SEP = re.compile(r'\.(?!\})')
 
 DEFAULT_LIMIT = 1000
 
@@ -241,7 +242,7 @@ class ExpandBrace:
         i: StringIter,
         depth: int,
         ignore_end: bool = False
-    ) -> tuple[list[str | Iterator[str]], int]:
+    ) -> tuple[list[str | Iterator[str]], int, bool]:
         """
         Get a string literal.
 
@@ -254,6 +255,7 @@ class ExpandBrace:
         dollar_depth = 0
         count = 1
         literal = ''
+        has_seq = False
 
         try:
             while c:
@@ -299,6 +301,14 @@ class ExpandBrace:
 
                     i.rewind(1)
                     break
+
+                elif not dollar_depth and c == '.' and i.match(RE_SEQ_SEP):
+                    # Bash counts `..` like a comma when looking for the `}` that ends a top level group,
+                    # unless `}` follows it, so the next `}` can end the group.
+                    ignore_end = False
+                    has_seq = True
+                    literal += '..'
+
                 else:
                     literal += c
 
@@ -308,7 +318,7 @@ class ExpandBrace:
             if literal:
                 result.append(literal)
 
-        return result, self.account(count)
+        return result, self.account(count), has_seq
 
     def get_sequence(self, c: str, i: StringIter, depth: int) -> tuple[Iterator[str], int]:
         """
@@ -321,6 +331,7 @@ class ExpandBrace:
         result = []  # type: list[str | Iterator[str] | Iterable[str | Iterator[str]]]
         release = self.set_expanding()
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
+        has_seq = False  # Used to indicate a top level `..` that lets the next `}` end the group.
         is_empty = True  # Tracks whether the current slot is empty `{slot,slot,slot}`.
         counts = []
 
@@ -337,7 +348,7 @@ class ExpandBrace:
                 # Bash has some special top level logic. if `}` follows `{` but hasn't matched
                 # a group yet, keep going except when the first 2 bytes are `{}` which gets
                 # completely ignored.
-                keep_looking = depth == 1 and not has_comma
+                keep_looking = depth == 1 and not has_comma and not has_seq
                 if (c == '}' and (not keep_looking or i.index == 2)):
                     self.release_expanding(release)
 
@@ -387,7 +398,7 @@ class ExpandBrace:
 
                 else:
                     # Lower level: Try to find group, but give up if cannot acquire.
-                    value, lcount = self.get_literals(c, i, depth, keep_looking)
+                    value, lcount, has_seq = self.get_literals(c, i, depth, keep_looking)
                     counts.append(lcount)
                     if value is not None:
                         if len(value) > 1:
@@ -518,7 +529,7 @@ class ExpandBrace:
         """Expand the string."""
 
         i = StringIter(string)
-        values, _ = self.get_literals(next(i), i, 0)
+        values, _, _ = self.get_literals(next(i), i, 0)
 
         # Squash the nested list by calculating the combinations
         results = iter([EMPTY])  # type: Iterator[str]
