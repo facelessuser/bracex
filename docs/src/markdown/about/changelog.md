@@ -2,6 +2,7 @@
 
 ## 3.2.1
 
+-   **FIX**: Preserve an initial empty brace group after a valid expansion.
 -   **FIX**: Fix `${...}` inside a brace group ending the group early.
 -   **FIX**: Fix an invalid sequence such as `{1..a}` being split at a later comma instead of being kept as text.
 

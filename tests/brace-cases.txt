@@ -295,3 +295,11 @@ a{b},
 a{1..a},b}c
 {1..a},{b,c}}
 {1..},b}
+# An initial empty group is literal in the postamble after a valid expansion
+{a,b}{},c}
+{1..2}{},c}
+prefix{a,b}{},tail}
+{a,b}x{},c}
+{a,b}{}{},c}
+{word}{},c}
+{a{b,c}}{},d}

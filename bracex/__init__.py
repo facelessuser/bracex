@@ -251,6 +251,7 @@ class ExpandBrace:
         """
 
         result = []  # type: list[str | Iterator[str]]
+        word_start = 0
         is_dollar = False
         dollar_depth = 0
         count = 1
@@ -281,7 +282,10 @@ class ExpandBrace:
 
                     # Try and get the group
                     try:
-                        seq, scount = self.get_sequence(next(i), i, depth + 1)
+                        seq, scount, expanded = self.get_sequence(next(i), i, depth + 1, word_start)
+                        if expanded:
+                            # Bash expands each postamble as a new word.
+                            word_start = i.index
                         count *= scount
                         result.append(seq)
                     except StopIteration:
@@ -320,7 +324,7 @@ class ExpandBrace:
 
         return result, self.account(count), has_seq
 
-    def get_sequence(self, c: str, i: StringIter, depth: int) -> tuple[Iterator[str], int]:
+    def get_sequence(self, c: str, i: StringIter, depth: int, word_start: int) -> tuple[Iterator[str], int, bool]:
         """
         Get the sequence.
 
@@ -341,15 +345,15 @@ class ExpandBrace:
         i.advance(1)
         if item is not None:
             self.release_expanding(release)
-            return item, self.account(count)
+            return item, self.account(count), True
 
         try:
             while True:
                 # Bash has some special top level logic. if `}` follows `{` but hasn't matched
-                # a group yet, keep going except when the first 2 bytes are `{}` which gets
-                # completely ignored.
+                # a group yet, keep going except when the first 2 bytes of the current
+                # postamble are `{}` which gets completely ignored.
                 keep_looking = depth == 1 and not has_comma and not has_seq
-                if (c == '}' and (not keep_looking or i.index == 2)):
+                if (c == '}' and (not keep_looking or i.index == word_start + 2)):
                     self.release_expanding(release)
 
                     # Handle empty slot
@@ -365,7 +369,7 @@ class ExpandBrace:
                         for r in self.flatten(result):
                             temp = self.squash(temp, [r] if isinstance(r, str) else r)
                         temp = self.squash(temp, ['}'])
-                        return temp, self.account(math.prod(counts, start=1))
+                        return temp, self.account(math.prod(counts, start=1)), False
 
                     # Format return for a sequence
                     fin = iter([])  # type: Iterator[str]
@@ -385,7 +389,7 @@ class ExpandBrace:
                             start = e + 1
                     if start < l:
                         fin = self.chain(fin, result[start:])
-                    return fin, self.account(sum(counts))
+                    return fin, self.account(sum(counts)), True
 
                 elif c == ',':
                     # Must be the first element in the list.
@@ -424,7 +428,7 @@ class ExpandBrace:
             for r in self.flatten([slot]):
                 member = self.squash(member, [r] if isinstance(r, str) else r)
             temp2 = self.squash(temp2, member)
-        return temp2, self.account(math.prod(counts, start=1))
+        return temp2, self.account(math.prod(counts, start=1)), False
 
     def get_range(self, i: StringIter) -> tuple[Iterator[str] | None, int]:
         """
