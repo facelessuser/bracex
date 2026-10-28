@@ -33,8 +33,8 @@ __version_info__ = __meta__.__version_info__
 _alpha = [chr(x) if x != 0x5c else '' for x in range(ord('A'), ord('z') + 1)]
 _nalpha = list(reversed(_alpha))
 
-RE_INT_ITER = re.compile(r'(-?((?:0(?=\d))*)\d+)\.{2}(-?((?:0(?=\d))*)\d+)(?:\.{2}-?(((?:0(?=\d))*)\d+))?(?=\})')
-RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}-?(((?:0(?=\d))*)\d+))?(?=\})')
+RE_INT_ITER = re.compile(r'([-+]?((?:0(?=\d))*)\d+)\.{2}([-+]?((?:0(?=\d))*)\d+)(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})')
+RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})')
 RE_SEQ_SEP = re.compile(r'\.(?!\})')
 
 DEFAULT_LIMIT = 1000
@@ -477,9 +477,17 @@ class ExpandBrace:
         last = int64(end)
         inc = max(1, int64(increment))
 
+        # Bash's zero-padding rule (expand_seqterm in bash's braces.c): padding
+        # is only enabled when an operand *as written* starts with `0` (or `-0`).
+        # A unary `+` sign never enables padding, but once padding is enabled by
+        # either operand, the full written width of both operands (signs included)
+        # is honored: `{+05..8}` expands unpadded (`5 6 7 8`), `{+05..08}` and
+        # `{-05..08}` both widen to width 3 (`005 006 007 008` / `-05 ... 008`).
+        arm = bool((spad[1] - spad[0]) and not start.startswith('+'))
+        arm = arm or bool((epad[1] - epad[0]) and not end.startswith('+'))
         spad_len = spad[1] - spad[0]
         epad_len = epad[1] - epad[0]
-        padding = max(spad_len + len(start), epad_len + len(end)) if spad_len or epad_len else 0
+        padding = max(spad_len + len(start), epad_len + len(end)) if arm else 0
 
         if first < last:
             span = abs(last - first + 1)
