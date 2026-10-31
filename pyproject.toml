@@ -44,7 +44,6 @@ include = [
     "/docs/theme/**/*.css",
     "/docs/theme/**/*.js",
     "/docs/theme/**/*.html",
-    "/requirements/*.txt",
     "/bracex/**/*.py",
     "/bracex/py.typed",
     "/tests/**/*.py",
