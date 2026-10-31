@@ -1,15 +1,12 @@
 # Changes
 
-## 3.2.2
-
--   **FIX**: Fix numeric and character sequences with unary `+` signs (`{+1..3}`, `{1..+3..2}`, `{a..z..+2}`)
-    being left as literal text instead of expanded like Bash, including Bash's zero-padding rule for `+` operands.
-
 ## 3.2.1
 
 -   **FIX**: Preserve an initial empty brace group after a valid expansion.
 -   **FIX**: Fix `${...}` inside a brace group ending the group early.
 -   **FIX**: Fix an invalid sequence such as `{1..a}` being split at a later comma instead of being kept as text.
+-   **FIX**: Fix numeric and character sequences with unary `+` signs (`{+1..3}`, `{1..+3..2}`, `{a..z..+2}`)
+    being left as literal text instead of expanded like Bash, including Bash's zero-padding rule for `+` operands.
 
 ## 3.2
 
