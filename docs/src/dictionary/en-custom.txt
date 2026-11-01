@@ -42,3 +42,4 @@ tuple
 uncatchable
 validator
 wordlist
+unary
