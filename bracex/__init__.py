@@ -34,9 +34,9 @@ _alpha = [chr(x) if x != 0x5c else '' for x in range(ord('A'), ord('z') + 1)]
 _nalpha = list(reversed(_alpha))
 
 RE_INT_ITER = re.compile(
-    r'([-+]?((?:0(?=\d))*)\d+)\.{2}([-+]?((?:0(?=\d))*)\d+)(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})'
+    r'([-+]?((?:0(?=\d))*)\d+)\.{2}([-+]?((?:0(?=\d))*)\d+)(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})', re.ASCII
 )
-RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})')
+RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})', re.ASCII)
 RE_SEQ_SEP = re.compile(r'\.(?!\})')
 
 DEFAULT_LIMIT = 1000
