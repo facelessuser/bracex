@@ -555,11 +555,20 @@ class ExpandBrace:
         self.expanding = False
         found_literal = False
         if string:
-            for x in self.expand_str(string):
-                if x is EMPTY:
-                    continue
-                found_literal = True
-                yield x
+            try:
+                for x in self.expand_str(string):
+                    if x is EMPTY:
+                        continue
+                    found_literal = True
+                    yield x
+            except RecursionError:
+                # The parser is recursive, so an input nested deeply enough can
+                # exhaust the interpreter's stack. Report it through the same
+                # documented limit exception as runaway expansions instead of
+                # letting a bare `RecursionError` escape.
+                raise ExpansionLimitException(
+                    'Brace expansion has exceeded the maximum nesting depth'
+                ) from None
 
         if not found_literal and self.return_empty:
             yield ""
