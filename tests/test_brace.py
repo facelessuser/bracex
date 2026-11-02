@@ -278,6 +278,14 @@ class TestExpansionLimit(unittest.TestCase):
 
         self.assertEqual(len(bracex.expand('text{1,2}text{{3,4,{5,6}text{7,8}},{9}}', limit=0)), 14)
 
+    def test_deep_nesting_recursion_limit(self):
+        """Test deeply nested braces raise the limit exception, not `RecursionError`."""
+
+        with self.assertRaises(bracex.ExpansionLimitException):
+            bracex.expand('a{' * 2000 + 'b' + '}' * 2000)
+        with self.assertRaises(bracex.ExpansionLimitException):
+            list(bracex.iexpand('a{' * 2000 + 'b' + '}' * 2000))
+
     def test_expansion_char_limt_expand(self):
         """Test expansion character limit with `expand`."""
 
