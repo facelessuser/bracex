@@ -2,9 +2,10 @@
 
 set -e
 
-# Bash 4.3 - 5.0 because of arbitrary need to pick a single standard.
-if ! [[ "${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}" =~ (4\.[^1-2]|5\.[0-3])(\.\d+)? ]]; then
-  echo "this script requires bash 4.3, 4.4, or 5.0" >&2
+# Bash 5.3 changed how brace groups that look like sequences are validated (invalid candidates are skipped
+# and later braces are still expanded), so results differ from 5.2 and earlier. Generate against 5.3 only.
+if [[ "${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}" != "5.3" ]]; then
+  echo "this script requires bash 5.3" >&2
   exit 1
 fi
 
