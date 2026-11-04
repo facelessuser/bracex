@@ -38,6 +38,8 @@ RE_INT_ITER = re.compile(
 )
 RE_CHR_ITER = re.compile(r'([A-Za-z])\.{2}([A-Za-z])(?:\.{2}[-+]?(((?:0(?=\d))*)\d+))?(?=\})', re.ASCII)
 RE_SEQ_SEP = re.compile(r'\.(?!\})')
+RE_SEQ_TERM = re.compile(r'(?:[-+]?\d|[A-Za-z]\.)', re.ASCII)
+RE_SEQ_TERM_END = re.compile(r'(?:[-+]?\d|[A-Za-z][.}])', re.ASCII)
 
 DEFAULT_LIMIT = 1000
 
@@ -125,6 +127,12 @@ class StringIter:
 
         return self._index
 
+    @property
+    def string(self) -> str:
+        """Get the string being iterated."""
+
+        return self._string
+
     def previous(self) -> str:  # pragma: no cover
         """Get previous char."""
 
@@ -198,6 +206,27 @@ class ExpandBrace:
 
         if release:
             self.expanding = False
+
+    def looks_like_sequence(self, group: str) -> bool:
+        """
+        Check whether the group (with its closing `}`) starts like a sequence.
+
+        This is Bash's loose `valid_seqterm` check: both sides of the first `..` must start like the same kind
+        of term (integer or letter). Whether the sequence is really valid is not considered here.
+        """
+
+        index = group.find('..')
+        if index < 1 or group[0] == '.':
+            return False
+        left = RE_SEQ_TERM.match(group)
+        right = RE_SEQ_TERM_END.match(group, index + 2)
+        return bool(left and right and group[0].isalpha() == group[index + 2].isalpha())
+
+    def literal_text(self, text: str) -> str:
+        """Resolve escapes in text that is kept literally."""
+
+        i = StringIter(text)
+        return ''.join(self.get_escape(c, i) if c == '\\' else c for c in i)
 
     def get_escape(self, c: str, i: StringIter) -> str:
         """Get an escape."""
@@ -335,6 +364,7 @@ class ExpandBrace:
         """
 
         result = []  # type: list[str | Iterator[str] | Iterable[str | Iterator[str]]]
+        group_start = i.index - 1  # Index of the first character within the group.
         release = self.set_expanding()
         has_comma = False  # Used to indicate validity of group (`{1..2}` are an exception).
         has_seq = False  # Used to indicate a top level `..` that lets the next `}` end the group.
@@ -366,6 +396,10 @@ class ExpandBrace:
 
                     # Sequence is not valid
                     if not has_comma:
+                        if has_seq and self.looks_like_sequence(i.string[group_start:i.index]):
+                            # Bash accepts anything that merely starts like a sequence and, if it later turns out
+                            # not to be one, keeps the whole group as text without expanding nested groups.
+                            return iter(['{' + self.literal_text(i.string[group_start:i.index - 1]) + '}']), 1, False
                         count = 1
                         temp = iter(['{'])
                         for r in self.flatten(result):

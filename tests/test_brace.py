@@ -83,7 +83,13 @@ class TestBraces:
     nested_cases = [
         ['{a,b{1..3},c}', ['a', 'b1', 'b2', 'b3', 'c']],
         ['{{A..Z},{a..z}}', list('ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')],
-        ['ppp{,config,oe{,conf}}', ['ppp', 'pppconfig', 'pppoe', 'pppoeconf']]
+        ['ppp{,config,oe{,conf}}', ['ppp', 'pppconfig', 'pppoe', 'pppoeconf']],
+        # Bash keeps a group that starts like a sequence as text, nested groups included
+        ['{1..3{a,b}}', ['{1..3{a,b}}']],
+        ['x{1..3{a,b}}y{c,d}', ['x{1..3{a,b}}yc', 'x{1..3{a,b}}yd']],
+        ['{1..3{a,b\\}}}', ['{1..3{a,b}}}']],
+        # But if it doesn't even start like a sequence, nested groups still expand
+        ['{1..{a,b}}', ['{1..a}', '{1..b}']]
     ]
 
     order_cases = [

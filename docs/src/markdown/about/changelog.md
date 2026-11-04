@@ -1,5 +1,10 @@
 # Changes
 
+## Unreleased
+
+-   **FIX**: Keep a group that starts like a sequence but is invalid, such as `{1..3{a,b}}`, as literal text without
+    expanding its nested groups, matching Bash 5.3.
+
 ## 3.2.1
 
 -   **FIX**: Keep numeric sequences with non-ASCII digits literal, matching Bash.
