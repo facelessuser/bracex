@@ -103,6 +103,7 @@ class StringIter:
         self._string = string
         self._index = 0
         self._last_seq = string.rfind('..')
+        self.scan_memo = {}  # type: dict[int, tuple[int, bool]]
 
     def __iter__(self) -> "StringIter":  # pragma: no cover
         """Iterate."""
@@ -214,18 +215,29 @@ class ExpandBrace:
         if release:
             self.expanding = False
 
-    def scan_group(self, string: str, index: int, bounded: bool) -> tuple[int, bool]:
+    def scan_group(self, i: StringIter, index: int, bounded: bool) -> tuple[int, bool]:
         """
-        Scan ahead, like Bash, to find the `}` that ends the group starting at `index`.
+        Scan ahead, like Bash to find the `}` that ends the group starting at `index`.
 
         Returns the index of the closing `}` (or -1 if there is none) and whether Bash would treat the group
         as a sequence candidate: a top level `..` (not directly followed by `}`) and no top level comma.
 
         Bash only ever sees the slot a nested group is in, so when `bounded`, a top level `}` that doesn't end the
         group can only be the end of the slot, which means there is no closing `}`.
+
+        Groups nested in the one being scanned are tracked as they are passed, as their outcome (as a bounded
+        group) is known as soon as they close. These are remembered so they don't have to be scanned again.
         """
 
-        level = 0
+        string = i.string
+        memo = i.scan_memo
+        if bounded:
+            result = memo.get(index)
+            if result is not None:
+                return result
+
+        # Open nested groups as `[start, found a separator, is a sequence]`, and `None` for a `${`.
+        stack = []  # type: list[list[Any] | None]
         found = False  # A top level comma or `..` has been found, which allows a top level `}` to end the group.
         is_seq = False
         size = len(string)
@@ -234,23 +246,29 @@ class ExpandBrace:
             if c == '\\':
                 index += 1
             elif c == '$' and string.startswith('{', index + 1):
-                level += 1
+                stack.append(None)
                 index += 1
             elif c == '{':
-                level += 1
+                stack.append([index + 1, False, False])
             elif c == '}':
-                if level:
-                    level -= 1
+                if stack:
+                    nested = stack.pop()
+                    if nested is not None:
+                        memo[nested[0]] = (index, nested[2]) if nested[1] else (-1, False)
                 elif found:
                     return index, is_seq
-                elif bounded:
+                elif bounded:  # pragma: no cover
+                    # A nested group is normally already known from the scan of the group around it.
                     break
-            elif level == 0:
-                if c == ',':
-                    is_seq = False
-                    found = True
-                elif c == '.' and not found and string.startswith('..', index) and string[index + 2:index + 3] != '}':
-                    is_seq = found = True
+            elif c == ',' or (c == '.' and string.startswith('..', index) and string[index + 2:index + 3] != '}'):
+                if not stack:
+                    if c == ',' or not found:
+                        found = True
+                        is_seq = c == '.'
+                else:
+                    top = stack[-1]
+                    if top is not None and (c == ',' or not top[1]):
+                        top[1:] = [True, c == '.']
             index += 1
         return -1, False
 
@@ -430,7 +448,7 @@ class ExpandBrace:
         # A group that looks like one but isn't valid is kept as text, nested groups and all. A group that doesn't
         # even look like one is abandoned: Bash skips just the `{` and tries again with what follows.
         # Without a `..` ahead, the group can't be a sequence candidate, so skip the scan.
-        end, is_seq = self.scan_group(i.string, group_start, depth > 1) if i.last_seq >= group_start else (-1, False)
+        end, is_seq = self.scan_group(i, group_start, depth > 1) if i.last_seq >= group_start else (-1, False)
         if is_seq and end != -1:
             self.release_expanding(release)
             if self.looks_like_sequence(i.string[group_start:end + 1]):
