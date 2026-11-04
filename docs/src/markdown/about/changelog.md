@@ -2,8 +2,9 @@
 
 ## Unreleased
 
--   **FIX**: Keep a group that starts like a sequence but is invalid, such as `{1..3{a,b}}`, as literal text without
-    expanding its nested groups, matching Bash 5.3.
+-   **FIX**: Match Bash 5.3 for groups that contain a top level `..` but are not valid sequences. If the group starts
+    like a sequence, such as `{1..3{a,b}}`, it is kept as text without expanding nested groups. If it doesn't, such as
+    `{a..x{b}},}`, only the opening `{` is skipped and what follows is parsed again, as in Bash.
 
 ## 3.2.1
 

@@ -102,6 +102,7 @@ class StringIter:
 
         self._string = string
         self._index = 0
+        self._last_seq = string.rfind('..')
 
     def __iter__(self) -> "StringIter":  # pragma: no cover
         """Iterate."""
@@ -126,6 +127,12 @@ class StringIter:
         """Get current index."""
 
         return self._index
+
+    @property
+    def last_seq(self) -> int:
+        """Get the index of the last `..`, or -1 if there are none."""
+
+        return self._last_seq
 
     @property
     def string(self) -> str:
@@ -206,6 +213,46 @@ class ExpandBrace:
 
         if release:
             self.expanding = False
+
+    def scan_group(self, string: str, index: int, bounded: bool) -> tuple[int, bool]:
+        """
+        Scan ahead, like Bash, to find the `}` that ends the group starting at `index`.
+
+        Returns the index of the closing `}` (or -1 if there is none) and whether Bash would treat the group
+        as a sequence candidate: a top level `..` (not directly followed by `}`) and no top level comma.
+
+        Bash only ever sees the slot a nested group is in, so when `bounded`, a top level `}` that doesn't end the
+        group can only be the end of the slot, which means there is no closing `}`.
+        """
+
+        level = 0
+        found = False  # A top level comma or `..` has been found, which allows a top level `}` to end the group.
+        is_seq = False
+        size = len(string)
+        while index < size:
+            c = string[index]
+            if c == '\\':
+                index += 1
+            elif c == '$' and string.startswith('{', index + 1):
+                level += 1
+                index += 1
+            elif c == '{':
+                level += 1
+            elif c == '}':
+                if level:
+                    level -= 1
+                elif found:
+                    return index, is_seq
+                elif bounded:
+                    break
+            elif level == 0:
+                if c == ',':
+                    is_seq = False
+                    found = True
+                elif c == '.' and not found and string.startswith('..', index) and string[index + 2:index + 3] != '}':
+                    is_seq = found = True
+            index += 1
+        return -1, False
 
     def looks_like_sequence(self, group: str) -> bool:
         """
@@ -379,6 +426,25 @@ class ExpandBrace:
             self.release_expanding(release)
             return item, self.account(count), True
 
+        # Bash decides up front whether a group is a sequence candidate and, if so, whether it looks like a sequence.
+        # A group that looks like one but isn't valid is kept as text, nested groups and all. A group that doesn't
+        # even look like one is abandoned: Bash skips just the `{` and tries again with what follows.
+        # Without a `..` ahead, the group can't be a sequence candidate, so skip the scan.
+        end, is_seq = self.scan_group(i.string, group_start, depth > 1) if i.last_seq >= group_start else (-1, False)
+        if is_seq and end != -1:
+            self.release_expanding(release)
+            if self.looks_like_sequence(i.string[group_start:end + 1]):
+                i.advance(end + 1 - i.index)
+                return iter(['{' + self.literal_text(i.string[group_start:end]) + '}']), 1, False
+            if depth == 1:
+                # Continue the current word from just after the `{`.
+                i.rewind(i.index - group_start)
+                return iter(['{']), 1, False
+            # Nested groups are confined to their slot, so expand what follows the `{` on its own.
+            sub, scount = self.expand_isolated(i.string[group_start:end + 1])
+            i.advance(end + 1 - i.index)
+            return self.squash(iter(['{']), sub), scount, False
+
         try:
             while True:
                 # Bash has some special top level logic. if `}` follows `{` but hasn't matched
@@ -396,10 +462,6 @@ class ExpandBrace:
 
                     # Sequence is not valid
                     if not has_comma:
-                        if has_seq and self.looks_like_sequence(i.string[group_start:i.index]):
-                            # Bash accepts anything that merely starts like a sequence and, if it later turns out
-                            # not to be one, keeps the whole group as text without expanding nested groups.
-                            return iter(['{' + self.literal_text(i.string[group_start:i.index - 1]) + '}']), 1, False
                         count = 1
                         temp = iter(['{'])
                         for r in self.flatten(result):
@@ -570,6 +632,22 @@ class ExpandBrace:
             count = math.ceil(span / inc) if inc <= abs(span) else 1
             r = range(first, last - 1, -inc)
         return (alpha[i] for i in r), count
+
+    def expand_isolated(self, string: str) -> tuple[Iterator[str], int]:
+        """Expand a piece of text on its own, as though it were not inside a group."""
+
+        expanding = self.expanding
+        self.expanding = False
+        try:
+            i = StringIter(string)
+            values, count, _ = self.get_literals(next(i), i, 0)
+        finally:
+            self.expanding = expanding
+
+        results = iter([EMPTY])  # type: Iterator[str]
+        for v in values:
+            results = self.squash(results, [v] if isinstance(v, str) else v)
+        return results, count
 
     def expand_str(self, string: str) -> Iterator[str]:
         """Expand the string."""
