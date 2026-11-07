@@ -24,7 +24,7 @@ import argparse
 import bracex
 
 
-def main(argv: str | None = None) -> None:
+def main(argv: list[str] | None = None) -> None:
     """Accept command line arguments and output brace expansion to stdout."""
     parser = argparse.ArgumentParser(
         prog='python -m bracex',
