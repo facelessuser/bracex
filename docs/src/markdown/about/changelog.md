@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased
+## 3.2.2
 
 -   **FIX**: Match Bash 5.3 for groups that contain a top level `..` but are not valid sequences. If the group starts
     like a sequence, such as `{1..3{a,b}}`, it is kept as text without expanding nested groups. If it doesn't, such as
