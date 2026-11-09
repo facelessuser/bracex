@@ -113,9 +113,13 @@ class TestBraces:
         ['{b..k..2}', ['b', 'd', 'f', 'h', 'j']]
     ]
 
-    error_cases = [
-        # This would fail in bash, but we won't fail because we aren't Bash
-        ['{a,b,c}\\', ['a', 'b', 'c']]
+    trailing_backslash_cases = [
+        # Bash keeps a backslash that has nothing after it to escape: [pattern, result, result keeping escapes]
+        ['{a,b,c}\\', ['a\\', 'b\\', 'c\\'], ['a\\', 'b\\', 'c\\']],
+        ['a\\', ['a\\'], ['a\\']],
+        ['\\', ['\\'], ['\\']],
+        ['a{b,c\\', ['a{b,c\\'], ['a{b,c\\']],
+        ['_\\{_\\,}_\\', ['_{_,}_\\'], ['_\\{_\\,}_\\']]
     ]
 
     @staticmethod
@@ -147,11 +151,12 @@ class TestBraces:
         print('TEST: ', result, '<=^=>', goal, '\n')
         cls.assert_equal(result, goal)
 
-    @pytest.mark.parametrize("case", error_cases)
-    def test_internal_errors(self, case):
-        """Test trailing escape."""
+    @pytest.mark.parametrize("case", trailing_backslash_cases)
+    def test_trailing_backslash(self, case):
+        """Test that a trailing backslash is kept, with or without keeping escapes."""
 
-        self.eval_brace_cases(case)
+        self.assert_equal(bracex.expand(case[0]), case[1])
+        self.assert_equal(bracex.expand(case[0], keep_escapes=True), case[2])
 
     @pytest.mark.parametrize("case", dollar_cases)
     def test_dollar_expand(self, case):

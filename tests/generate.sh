@@ -16,7 +16,8 @@ cat brace-cases.txt | \
     if [ "${case:0:1}" = "#" ]; then
       continue;
     fi;
-    b="$($BASH -c 'for c in '"$case"'; do echo "[$c]"; done')"
+    # The case is evaluated as an argument so it can end with a backslash, which would otherwise escape what follows.
+    b="$($BASH -c 'eval "set -- $1"; for c in "$@"; do echo "[$c]"; done' _ "$case")"
     echo "$case"
     echo -n "$b><><><><";
   done > brace-results.txt

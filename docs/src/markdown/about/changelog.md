@@ -1,5 +1,10 @@
 # Changes
 
+## Unreleased
+
+-   **FIX**: Keep a trailing backslash that has nothing to escape, such as in `{a,b}\`, like Bash 5.3 does. It was
+    previously dropped unless `keep_escapes` was enabled.
+
 ## 3.2.2
 
 -   **FIX**: Match Bash 5.3 for groups that contain a top level `..` but are not valid sequences. If the group starts

@@ -299,7 +299,8 @@ class ExpandBrace:
         try:
             escaped = next(i)
         except StopIteration:
-            escaped = ''
+            # Like Bash, a backslash with nothing after it to escape is kept as is.
+            return c
         return c + escaped if self.keep_escapes else escaped
 
     def squash(self, a: Iterable[str], b: Iterable[str]) -> Iterator[str]:
