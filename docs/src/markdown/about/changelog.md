@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased
+## 3.2.3
 
 -   **FIX**: Keep a trailing backslash that has nothing to escape, such as in `{a,b}\`, like Bash 5.3 does. It was
     previously dropped unless `keep_escapes` was enabled.
