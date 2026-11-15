@@ -405,7 +405,7 @@ class TestExpansionLimit(unittest.TestCase):
         """Count large integer ranges exactly at the expansion limit."""
 
         limit = 1000
-        step = 2**54
+        step = 2**53
         ranges = (
             (-(2**63), 1),
             (2**63 - 1, -1),
