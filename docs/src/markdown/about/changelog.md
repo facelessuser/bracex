@@ -1,5 +1,10 @@
 # Changes
 
+## Unreleased
+
+-   **FIX**: Keep numeric sequences literal, like Bash, when the distance between the start and end doesn't fit in a
+    signed 64-bit integer, such as `{-1..9223372036854775807..4611686018427387904}`.
+
 ## 3.2.3
 
 -   **FIX**: Keep a trailing backslash that has nothing to escape, such as in `{a,b}\`, like Bash 5.3 does. It was

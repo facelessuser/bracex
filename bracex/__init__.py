@@ -596,6 +596,8 @@ class ExpandBrace:
         # Ensure values are within 64 bit range.
         first = int64(start)
         last = int64(end)
+        if abs(last - first) > MAX_INT_64:
+            raise ValueError('Range is larger than the signed 64-bit storage type')
         inc = max(1, int64(increment))
 
         # Bash's zero-padding rule: padding is only enabled when an operand, as written,
