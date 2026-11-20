@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased
+## 3.2.4
 
 -   **FIX**: Keep numeric sequences literal, like Bash, when the distance between the start and end doesn't fit in a
     signed 64-bit integer, such as `{-1..9223372036854775807..4611686018427387904}`.
